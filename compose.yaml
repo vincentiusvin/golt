@@ -1,0 +1,10 @@
+services:
+  backend:
+    container_name: golt-backend
+    build: ./server
+
+  frontend:
+    container_name: golt-frontend
+    build: ./client
+    ports:
+      - "80:80"

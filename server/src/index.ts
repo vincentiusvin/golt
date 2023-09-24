@@ -5,7 +5,10 @@ import * as fs from "node:fs/promises";
 import { UserCode, DisasmResult } from "./shared_interfaces";
 const app = express();
 const port = 3000;
+const cors = require("cors");
+
 app.use(json());
+app.use(cors());
 
 app.get("/api", (req: Request, res: Response) => {
   res.send("API Endpoint :)");
