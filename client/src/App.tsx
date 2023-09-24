@@ -1,9 +1,7 @@
 import { useState } from "react";
 import "./App.css";
-import {
-  UserCode,
-  DisasmResult,
-} from "./shared_interfaces";
+import { UserCode, DisasmResult } from "./shared_interfaces";
+import { Editor } from "@monaco-editor/react";
 
 type CodeProps = {
   setDisasm: (msg: string) => void;
@@ -34,31 +32,17 @@ const Code = (props: CodeProps) => {
     });
   };
   return (
-    <textarea
-      className="h-full overflow-scroll bg-bg outline-none"
-      onKeyUp={(event) => {
-        clearTimeout(lastTimeout);
-        setLastTimeout(
-          setTimeout(
-            () =>
-              event.target instanceof HTMLTextAreaElement &&
-              makeRequest(event.target.value),
-            500
-          )
-        );
-      }}
-      onKeyDown={(event) => {
-        if (
-          event.key == "Tab" &&
-          event.target instanceof HTMLTextAreaElement
-        ) {
-          const el = event.target;
-          const start = el.selectionStart;
-          const end = el.selectionEnd;
-          event.preventDefault();
-          el.value = el.value.substring(0, start) + "\t" + el.value.substring(start);
-          el.setSelectionRange(start + 1, end + 1);
+    <Editor
+      theme="vs-dark"
+      defaultLanguage="c"
+      defaultValue={"int main(){\n\tint a = 5;\n}"}
+      onMount={() => makeRequest("int main(){\n\tint a = 5;\n}")}
+      onChange={(value) => {
+        if (!value) {
+          return;
         }
+        clearTimeout(lastTimeout);
+        setLastTimeout(setTimeout(() => makeRequest(value), 500));
       }}
     />
   );
