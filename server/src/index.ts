@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 app.use(json());
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/api", (req: Request, res: Response) => {
   res.send("API Endpoint :)");
 });
 
@@ -25,7 +25,7 @@ app.post("/api/compile", (req: Request, res: Response) => {
           reply = { status: false, reason: err.message };
           res.status(200).json(reply).send();
         } else {
-          exec("objdump -drwCS compile/a.out", (err, out) => {
+          exec("objdump -DrwCS -j .text -j .plt -j .rodata compile/a.out", (err, out) => {
             if (err) {
               reply = { status: false, reason: err.message };
               res.status(200).json(reply).send();
