@@ -1,8 +1,8 @@
-export type incoming_request = {
+export type UserCode = {
     code: string;
 } | undefined;
 
-export type outgoing_request = {
+export type DisasmResult = {
     status: true;
     code: string;
 } | {

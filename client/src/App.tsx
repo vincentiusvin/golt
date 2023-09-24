@@ -1,8 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 import {
-  incoming_request,
-  outgoing_request,
+  UserCode,
+  DisasmResult,
 } from "./shared_interfaces";
 
 type CodeProps = {
@@ -15,7 +15,7 @@ const Code = (props: CodeProps) => {
     number | undefined
   >();
   const makeRequest = (userCode: string) => {
-    const request: incoming_request = { code: userCode };
+    const request: UserCode = { code: userCode };
     fetch("/api/compile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -24,7 +24,7 @@ const Code = (props: CodeProps) => {
     }).then((response) => {
       response
         .json()
-        .then((disasm: outgoing_request) =>
+        .then((disasm: DisasmResult) =>
           setDisasm(
             disasm.status
               ? disasm.code
