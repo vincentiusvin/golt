@@ -14,21 +14,27 @@ const Code = (props: CodeProps) => {
   >();
   const makeRequest = (userCode: string) => {
     const request: UserCode = { code: userCode };
-    fetch("/api/compile", {
+    fetch("/api/code", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       mode: "cors",
       body: JSON.stringify(request),
     }).then((response) => {
-      response
-        .json()
-        .then((disasm: DisasmResult) =>
-          setDisasm(
-            disasm.status
-              ? disasm.code
-              : "Compilation Failed\n\n\n" + disasm.reason
-          )
-        );
+      if (response.status == 201) {
+        fetch("/api/compile", {
+          method: "GET",
+        }).then((response) => {
+          response
+            .json()
+            .then((disasm: DisasmResult) =>
+              setDisasm(
+                disasm.status
+                  ? disasm.code
+                  : "Compilation Failed\n\n\n" + disasm.reason
+              )
+            );
+        });
+      }
     });
   };
   const [oldCode, setOldCode] = useState(undefined);

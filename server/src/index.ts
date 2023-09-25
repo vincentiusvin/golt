@@ -25,7 +25,7 @@ app.get("/api", (req: Request, res: Response) => {
 app.get("/api/code", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
-  console.log(`/api/code get by ${session?.username}`)
+  console.log(`/api/code get by ${session?.username}`);
   if (!session && token) {
     res.status(403).send();
   } else {
@@ -36,46 +36,49 @@ app.get("/api/code", (req: Request, res: Response) => {
   }
 });
 
-app.post("/api/compile", (req: Request, res: Response) => {
+app.post("/api/code", (req: Request, res: Response) => {
   const body: UserCode = req.body;
-  console.log(`/api/compile post with ${body}`)
   if (!body) {
     res.sendStatus(400);
   }
+  console.log(`/api/code post with ${body.code}`);
   fs.writeFile("compile/a.cpp", body.code)
     .then(() => {
-      let reply: DisasmResult;
-      exec("gcc -g compile/a.cpp -o compile/a.out", (err) => {
-        if (err) {
-          reply = { status: false, reason: err.message };
-          res.status(200).json(reply);
-        } else {
-          exec(
-            "objdump -DrwCS -j .text -j .plt -j .rodata compile/a.out",
-            (err, out) => {
-              if (err) {
-                reply = { status: false, reason: err.message };
-                res.status(200).json(reply);
-              } else {
-                fs.writeFile("compile/compiled.txt", out).then(() => {
-                  reply = { status: true, code: out };
-                  res.status(201).json(reply);
-                });
-              }
-            }
-          );
-        }
-      });
+      const reply: UserCode = { code: body.code };
+      res.status(201).json(reply);
     })
-    .catch(() => {
-      res.sendStatus(500);
-    });
+    .catch(() => res.sendStatus(500));
+});
+
+app.get("/api/compile", (req: Request, res: Response) => {
+  let reply: DisasmResult;
+  exec("gcc -g compile/a.cpp -o compile/a.out", (err) => {
+    if (err) {
+      reply = { status: false, reason: err.message };
+      res.status(200).json(reply);
+    } else {
+      exec(
+        "objdump -DrwCS -j .text -j .plt -j .rodata compile/a.out",
+        (err, out) => {
+          if (err) {
+            reply = { status: false, reason: err.message };
+            res.status(200).json(reply);
+          } else {
+            fs.writeFile("compile/compiled.txt", out).then(() => {
+              reply = { status: true, code: out };
+              res.status(200).json(reply);
+            });
+          }
+        }
+      );
+    }
+  });
 });
 
 app.get("/api/user", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
-  console.log(`/api/user get by ${session?.username}`)
+  console.log(`/api/user get by ${session?.username}`);
   if (session && session.expires >= new Date()) {
     const username = session["username"];
     res.status(200).json({ username: username });
@@ -85,7 +88,7 @@ app.get("/api/user", (req: Request, res: Response) => {
 app.get("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
-  console.log(`/api/session get by ${session?.username}`)
+  console.log(`/api/session get by ${session?.username}`);
   if (session && session.expires >= new Date()) {
     res.status(201).json(makeNewSession(session.username));
     delete sessions[token];
@@ -96,7 +99,7 @@ app.post("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
 
-  console.log(`/api/session post by ${session?.username}`)
+  console.log(`/api/session post by ${session?.username}`);
   if (session) {
     delete sessions[token];
   }
@@ -107,7 +110,7 @@ app.delete("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
 
-  console.log(`/api/session del by ${session?.username}`)
+  console.log(`/api/session del by ${session?.username}`);
   if (token) {
     delete sessions[token];
     res.redirect("/");
