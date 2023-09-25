@@ -16,7 +16,11 @@ export type Login = {
 }
 
 export type Session = {
-    uid: string;
+    username: string;
     expires: Date;
     token: string;
+}
+
+export type User = {
+    username: string;
 }

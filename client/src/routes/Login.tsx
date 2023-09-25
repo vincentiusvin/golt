@@ -17,11 +17,11 @@ const Login = () => {
       mode: "cors",
       body: JSON.stringify(data),
     }).then((response) => {
-      response.json().then((val: Session) =>
+      response.json().then((val: Session) => {
         setCookies("session_token", val.token, {
           expires: new Date(val.expires),
-        })
-      );
+        });
+      });
     });
   };
 
