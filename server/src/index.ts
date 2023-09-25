@@ -4,14 +4,37 @@ import { exec } from "node:child_process";
 import * as fs from "node:fs/promises";
 import { UserCode, DisasmResult, Login, Session } from "./shared_interfaces";
 import { randomUUID } from "node:crypto";
+const cookieParser = require("cookie-parser");
+
 const app = express();
 const port = 3000;
 
+
+const sessions: { [token: string]: Session } = {};
+
+const makeNewSession = (uid: string) => {
+  const token = randomUUID();
+  const expires = new Date(new Date().getTime() + 60 * 60 * 1000);
+  sessions[token] = { uid: uid, expires: expires, token: token };
+  return sessions[token];
+};
+
+app.use(cookieParser());
 app.use(json());
 
 app.get("/api", (req: Request, res: Response) => {
   res.send("API Endpoint :)");
 });
+
+app.get("/api/code", (req:Request, res:Response) => {
+  const token: string = (req.cookies && req.cookies["session_token"]) || null;
+  const session = token ? sessions[token] : null;
+  if(!session){
+    res.sendStatus(403);
+    return;
+  }
+  res.sendStatus(200);
+})
 
 app.post("/api/compile", (req: Request, res: Response) => {
   const body: UserCode = req.body;
@@ -49,14 +72,6 @@ app.post("/api/compile", (req: Request, res: Response) => {
     });
 });
 
-const sessions: { [token: string]: Session } = {};
-
-const makeNewSession = (uid: string) => {
-  const token = randomUUID();
-  const expires = new Date(new Date().getTime() + 60 * 60 * 1000);
-  sessions[token] = { uid: uid, expires: expires, token: token };
-  return sessions[token];
-};
 
 app.post("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
