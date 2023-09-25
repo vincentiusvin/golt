@@ -1,7 +1,8 @@
 import { FormEventHandler, useState } from "react";
 import "./App.css";
-import { UserCode, DisasmResult } from "./shared_interfaces";
+import { UserCode, DisasmResult, Session } from "./shared_interfaces";
 import { Editor } from "@monaco-editor/react";
+import { CookiesProvider, useCookies } from "react-cookie";
 
 type CodeProps = {
   setDisasm: (msg: string) => void;
@@ -49,6 +50,8 @@ const Code = (props: CodeProps) => {
 };
 
 const Login = () => {
+  const [cookies, setCookies] = useCookies();
+
   const loginRequest = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target;
@@ -62,14 +65,20 @@ const Login = () => {
       mode: "cors",
       body: JSON.stringify(data),
     }).then((response) => {
-      response.json().then(response);
+      response
+        .json()
+        .then((val: Session) =>
+          setCookies("session_token", val.token, {
+            expires: new Date(val.expires),
+          })
+        );
     });
   };
 
   return (
     <form
       onSubmit={loginRequest}
-      className="grid grid-cols-2 w-4/5 mx-auto"
+      className="grid w-1/2 mx-auto gridForm gap-x-5 gap-y-2"
     >
       Username:
       <input name="username" />
@@ -85,13 +94,17 @@ const Login = () => {
 function App() {
   const [disasm, setDisasm] = useState("");
   return (
-    <Login />
-    // <div className="grid grid-cols-2 h-screen p-5 gap-2">
-    //   <Code setDisasm={setDisasm} />
-    //   <div className="overflow-scroll bg-bg">
-    //     <pre>{disasm}</pre>
-    //   </div>
-    // </div>
+    <CookiesProvider>
+      <Login />
+      {
+        // <div className="grid grid-cols-2 h-screen p-5 gap-2">
+        //   <Code setDisasm={setDisasm} />
+        //   <div className="overflow-scroll bg-bg">
+        //     <pre>{disasm}</pre>
+        //   </div>
+        // </div>
+      }
+    </CookiesProvider>
   );
 }
 
