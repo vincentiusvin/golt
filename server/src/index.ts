@@ -8,10 +8,9 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 const port = 3000;
-
-
+app.use(cookieParser());
+app.use(json());
 const sessions: { [token: string]: Session } = {};
-
 const makeNewSession = (uid: string) => {
   const token = randomUUID();
   const expires = new Date(new Date().getTime() + 60 * 60 * 1000);
@@ -19,22 +18,19 @@ const makeNewSession = (uid: string) => {
   return sessions[token];
 };
 
-app.use(cookieParser());
-app.use(json());
-
 app.get("/api", (req: Request, res: Response) => {
   res.send("API Endpoint :)");
 });
 
-app.get("/api/code", (req:Request, res:Response) => {
+app.get("/api/code", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
-  if(!session){
+  if (!session) {
     res.sendStatus(403);
     return;
   }
   res.sendStatus(200);
-})
+});
 
 app.post("/api/compile", (req: Request, res: Response) => {
   const body: UserCode = req.body;
@@ -72,21 +68,23 @@ app.post("/api/compile", (req: Request, res: Response) => {
     });
 });
 
+app.get("/api/session", (req: Request, res: Response) => {
+  const token: string = (req.cookies && req.cookies["session_token"]) || null;
+  const session = token ? sessions[token] : null;
+  if (session && session.expires >= new Date()) {
+    res.status(201).json(makeNewSession(session.uid)).send();
+    delete sessions[token];
+  }
+});
 
 app.post("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
 
   if (session) {
-    if (session.expires <= new Date()) {
-      res.status(201).json(makeNewSession(session.uid)).send();
-    } else {
-      res.status(201).json(makeNewSession("1")).send();
-    }
     delete sessions[token];
-  } else {
-      res.status(201).json(makeNewSession("1")).send();
   }
+  res.status(201).json(makeNewSession("1")).send();
 });
 
 app.delete("/api/session", (req: Request, res: Response) => {

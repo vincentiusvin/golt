@@ -2,7 +2,7 @@ import { useCookies } from "react-cookie";
 import { Session } from "../shared_interfaces";
 
 const Login = () => {
-  const [_, setCookies] = useCookies();
+  const [, setCookies] = useCookies();
 
   const loginRequest = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
