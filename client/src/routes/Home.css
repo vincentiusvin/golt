@@ -1,7 +1,3 @@
-#root {
-  width: 100%;
-}
-
 .gridForm{
   grid-template-columns: fit-content(8rem) 1fr;
 }

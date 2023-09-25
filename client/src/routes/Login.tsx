@@ -26,18 +26,20 @@ const Login = () => {
   };
 
   return (
-    <form
-      onSubmit={loginRequest}
-      className="grid w-1/2 mx-auto gridForm gap-x-5 gap-y-2"
-    >
-      Username:
-      <input name="username" />
-      Password:
-      <input name="password" />
-      <button type="submit" className="col-span-2">
-        Submit
-      </button>
-    </form>
+    <div className="flex-grow flex items-center">
+      <form
+        onSubmit={loginRequest}
+        className="grid w-1/4 mx-auto gridForm gap-x-5 gap-y-2"
+      >
+        Username:
+        <input name="username" />
+        Password:
+        <input name="password" />
+        <button type="submit" className="col-span-2 bg-bg">
+          Submit
+        </button>
+      </form>
+    </div>
   );
 };
 

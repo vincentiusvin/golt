@@ -7,7 +7,8 @@ export default {
   theme: {
     extend: {},
     colors: {
-      bg: "#292c3f"
+      bg: "#292c3f",
+      white: '#ffffff',
     }
   },
   plugins: [],

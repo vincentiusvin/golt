@@ -29,7 +29,10 @@ app.get("/api/code", (req: Request, res: Response) => {
     res.sendStatus(403);
     return;
   }
-  res.sendStatus(200);
+  fs.readFile("compile/a.cpp", "utf-8").then((val) => {
+    const reply:UserCode = {code: val}
+    res.status(200).json(reply).send();
+  })
 });
 
 app.post("/api/compile", (req: Request, res: Response) => {

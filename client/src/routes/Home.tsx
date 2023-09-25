@@ -1,7 +1,7 @@
 import { Editor } from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DisasmResult, UserCode } from "../shared_interfaces";
-import "./App.css";
+import "./Home.css";
 
 type CodeProps = {
   setDisasm: (msg: string) => void;
@@ -31,12 +31,40 @@ const Code = (props: CodeProps) => {
         );
     });
   };
+  const [oldCode, setOldCode] = useState(undefined);
+  useEffect(() => {});
+  const useOnce = () => {
+    if (oldCode) {
+      const temp = oldCode;
+      setOldCode(undefined);
+      return temp;
+    }
+  };
   return (
     <Editor
       theme="vs-dark"
       defaultLanguage="c"
-      defaultValue={"int main(){\n\tint a = 5;\n}"}
-      onMount={() => makeRequest("int main(){\n\tint a = 5;\n}")}
+      value={useOnce()}
+      onMount={(editor) => {
+        fetch("/api/code", {
+          method: "GET",
+        })
+          .then((response) => {
+            response
+              .json()
+              .then((val: UserCode) => {
+                editor.setValue(
+                  val?.code || "int main(){\n\tint a = 5;\n}"
+                );
+              })
+              .catch(() =>
+                editor.setValue("int main(){\n\tint a = 5;\n}")
+              );
+          })
+          .catch(() =>
+            editor.setValue("int main(){\n\tint a = 5;\n}")
+          );
+      }}
       onChange={(value) => {
         if (!value) {
           return;
@@ -61,7 +89,7 @@ const Disasm = (props: DisasmProps) => {
   );
 };
 
-function App() {
+function Home() {
   const [disasmCode, setDisasmCode] = useState("");
   return (
     <div className="grid grid-cols-2 h-screen p-5 gap-2">
@@ -71,4 +99,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

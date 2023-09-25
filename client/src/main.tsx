@@ -6,13 +6,14 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 import "./index.css";
-import App from "./routes/App.tsx";
+import Home from "./routes/Home.tsx";
 import Login from "./routes/Login.tsx";
+import Navbar from "./Navbar.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Home />,
   },
   {
     path: "/login",
@@ -23,7 +24,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <CookiesProvider>
-      <RouterProvider router={router} />
+      <div className="min-h-screen w-screen flex flex-col">
+        <Navbar />
+        <RouterProvider router={router} />
+      </div>
     </CookiesProvider>
   </React.StrictMode>
 );
