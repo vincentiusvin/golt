@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEventHandler, useState } from "react";
 import "./App.css";
 import { UserCode, DisasmResult } from "./shared_interfaces";
 import { Editor } from "@monaco-editor/react";
@@ -48,15 +48,50 @@ const Code = (props: CodeProps) => {
   );
 };
 
+const Login = () => {
+  const loginRequest = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target;
+    if (!form || !(form instanceof HTMLFormElement)) {
+      return;
+    }
+    const data = Object.fromEntries(new FormData(form));
+    fetch("/api/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      mode: "cors",
+      body: JSON.stringify(data),
+    }).then((response) => {
+      response.json().then(response);
+    });
+  };
+
+  return (
+    <form
+      onSubmit={loginRequest}
+      className="grid grid-cols-2 w-4/5 mx-auto"
+    >
+      Username:
+      <input name="username" />
+      Password:
+      <input name="password" />
+      <button type="submit" className="col-span-2">
+        Submit
+      </button>
+    </form>
+  );
+};
+
 function App() {
   const [disasm, setDisasm] = useState("");
   return (
-    <div className="grid grid-cols-2 h-screen p-5 gap-2">
-      <Code setDisasm={setDisasm} />
-      <div className="overflow-scroll bg-bg">
-        <pre>{disasm}</pre>
-      </div>
-    </div>
+    <Login />
+    // <div className="grid grid-cols-2 h-screen p-5 gap-2">
+    //   <Code setDisasm={setDisasm} />
+    //   <div className="overflow-scroll bg-bg">
+    //     <pre>{disasm}</pre>
+    //   </div>
+    // </div>
   );
 }
 

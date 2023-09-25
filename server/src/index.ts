@@ -2,7 +2,7 @@ import { json } from "body-parser";
 import express, { Request, Response } from "express";
 import { exec } from "node:child_process";
 import * as fs from "node:fs/promises";
-import { UserCode, DisasmResult, Login } from "./shared_interfaces";
+import { UserCode, DisasmResult, Login, Session } from "./shared_interfaces";
 import { randomUUID } from "node:crypto";
 const app = express();
 const port = 3000;
@@ -49,58 +49,37 @@ app.post("/api/compile", (req: Request, res: Response) => {
     });
 });
 
-type Session = {
-  uid: string;
-  expire: Date;
-};
-
 const sessions: { [token: string]: Session } = {};
 
-const makeNewSession: (uid: string) => [string, Session] = (uid: string) => {
+const makeNewSession = (uid: string) => {
   const token = randomUUID();
-  const expire = new Date(new Date().getTime() + 60 * 60 * 1000);
-  sessions[token] = { uid: uid, expire: expire };
-  return [token, sessions[token]];
+  const expires = new Date(new Date().getTime() + 60 * 60 * 1000);
+  sessions[token] = { uid: uid, expires: expires, token: token };
+  return sessions[token];
 };
 
-app.post("/session", (req: Request, res: Response) => {
-  const authenticate = (uid: string) => {
-    const [token, session] = makeNewSession(uid);
-    res
-      .cookie("session_token", token, { expires: session.expire })
-      .status(401)
-      .send();
-  };
-
-  const login = () => {
-    const body: Login = req.body;
-    if (body && body.username === "udin" && body.password === "1234") {
-      authenticate("1");
-    }
-  };
-
+app.post("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   const session = token ? sessions[token] : null;
 
   if (session) {
-    if (session.expire <= new Date()) {
-      authenticate(sessions[token].uid);
+    if (session.expires <= new Date()) {
+      res.status(201).json(makeNewSession(session.uid)).send();
     } else {
-      login();
+      res.status(201).json(makeNewSession("1")).send();
     }
     delete sessions[token];
   } else {
-    login();
+      res.status(201).json(makeNewSession("1")).send();
   }
 });
 
-app.delete("/session", (req: Request, res: Response) => {
+app.delete("/api/session", (req: Request, res: Response) => {
   const token: string = (req.cookies && req.cookies["session_token"]) || null;
   if (token) {
     delete sessions[token];
     res.redirect("/");
-  }
-  else{
+  } else {
     res.sendStatus(401);
   }
 });

@@ -14,3 +14,9 @@ export type Login = {
     username: string;
     password: string;
 }
+
+export type Session = {
+    uid: string;
+    expires: Date;
+    token: string;
+}
