@@ -9,3 +9,8 @@ export type DisasmResult = {
     status: false;
     reason: string;
 }
+
+export type Login = {
+    username: string;
+    password: string;
+}
