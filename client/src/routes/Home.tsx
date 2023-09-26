@@ -17,7 +17,6 @@ const Code = (props: CodeProps) => {
     fetch("/api/code", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      mode: "cors",
       body: JSON.stringify(request),
     }).then((response) => {
       if (response.status == 201) {

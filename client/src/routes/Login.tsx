@@ -14,7 +14,6 @@ const Login = () => {
     fetch("/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      mode: "cors",
       body: JSON.stringify(data),
     }).then((response) => {
       response.json().then((val: Session) => {
