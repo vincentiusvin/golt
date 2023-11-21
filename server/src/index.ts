@@ -1,10 +1,8 @@
 import { json } from "body-parser";
-import express, { Request, Response } from "express";
-import { exec } from "node:child_process";
 import cookieParser from "cookie-parser";
+import express, { Request, Response } from "express";
 import { SessionManager } from "./model/Session";
-import { Code } from "./model/Code";
-import { ICodeRequest } from "./shared_interfaces";
+import { ICodeRequest, ICodeResponse } from "./shared_interfaces";
 
 const app = express();
 const port = 3000;
@@ -23,6 +21,11 @@ app.get("/api/code", (req: Request, res: Response) => {
   ).user;
   console.log(`/api/code get by ${user.username}`);
   const body: ICodeRequest = req.body;
+  const file = body.file_name;
+  const code = user.code_list.find((x) => x.name === file);
+
+  const response: ICodeResponse = {};
+  res.status(200).json();
 });
 
 app.post("/api/code", (req: Request, res: Response) => {});

@@ -1,29 +1,27 @@
-import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 export class Code {
-  file_name: string;
-  folder_name: string;
+  name: string;
 
   constructor(name: string, folder: string) {
-    this.file_name = name;
-    this.folder_name = folder;
+    this.name = folder;
   }
 
   private get_base_path() {
-    return `compile/${this.folder_name}/${this.file_name}.cpp`;
+    return `compile/${this.name}/`;
   }
 
   private get_code_path() {
-    return this.get_base_path() + ".cpp";
+    return this.get_base_path() + "code.cpp";
   }
 
   private get_binary_path() {
-    return this.get_base_path() + ".out";
+    return this.get_base_path() + "code.out";
   }
 
   private get_output_path() {
-    return this.get_base_path() + ".txt";
+    return this.get_base_path() + "status.json";
   }
 
   get_code() {
@@ -31,17 +29,41 @@ export class Code {
   }
 
   post_code(code: string) {
+    if (!existsSync(this.get_base_path())) {
+      mkdirSync(this.get_base_path());
+    }
+
     writeFileSync(this.get_code_path(), code);
     const compile = `gcc -g ${this.get_code_path()} -o ${this.get_binary_path()}`;
     const disasm = `objdump -DrwCS -j .text -j .plt -j .rodata ${this.get_binary_path()}`;
 
+    let result: CodeOutput;
     try {
-      execFileSync(compile).toString();
-      const output = execFileSync(disasm).toString();
-      writeFileSync(this.get_output_path(), output);
+      execSync(compile).toString();
+      const output = execSync(disasm).toString();
+
+      result = {
+        status: CodeStatus.Sucess,
+        result: output,
+      };
     } catch (error) {
-      const output = error.stderr;
-      writeFileSync(this.get_output_path(), output);
+      const output = error.stdout.toString();
+
+      result = {
+        status: CodeStatus.CompileError,
+        result: output,
+      };
     }
+    writeFileSync(this.get_output_path(), JSON.stringify(result));
   }
 }
+
+enum CodeStatus {
+  Sucess,
+  CompileError,
+}
+
+type CodeOutput = {
+  status: CodeStatus;
+  result: string;
+};

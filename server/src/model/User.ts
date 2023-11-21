@@ -7,8 +7,4 @@ export class User {
     this.username = username;
     this.code_list = [new Code("test", username)];
   }
-
-  get_all_codes() {
-    return this.code_list.map((x) => x.get_code());
-  }
 }
