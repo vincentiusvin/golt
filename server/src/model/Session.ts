@@ -26,6 +26,14 @@ export class SessionManager {
     return this.sessions[token];
   }
 
+  delete_session(token: string) {
+    const session = this.sessions[token];
+    if (!session) {
+      return null;
+    }
+    delete this.sessions[token];
+  }
+
   static get_session_token(req: Request): string | null {
     return req.cookies && req.cookies["session_token"];
   }

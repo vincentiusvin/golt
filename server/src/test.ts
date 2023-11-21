@@ -1,6 +1,6 @@
-import { User } from "./model/User";
+import { UserManager } from "./model/User";
 
-const user = new User("abcd");
+const user = new UserManager().login("abc", "123");
 const code = user.code_list[0];
 code.post_code(`
 #include <stdio.h>

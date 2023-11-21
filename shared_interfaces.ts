@@ -1,24 +1,40 @@
-export interface ICodeRequest {
-  code: string;
-  file_name: string;
+export enum CodeStatus {
+  Success,
+  CompileError,
 }
 
-export interface ICodeResponse {
-  status: false;
+export type ICodeGetRequest = {
   code: string;
-  reason?: string;
-}
+  name: string;
+};
 
-export interface ISessionRequest {
+export type ICodeGetResponse = {
+  status: CodeStatus;
+  code: string;
+  result: string;
+};
+
+export type ICodePostRequest = {
+  code: string;
+  name: string;
+};
+
+export type ICodePostResponse = {
+  status: CodeStatus;
+  code: string;
+  result: string;
+};
+
+export type ISessionPostRequest = {
   username: string;
   password: string;
-}
+};
 
-export interface ISessionResponse {
+export type ISessionPostResponse = {
   username: string;
   expires: Date;
   token: string;
-}
+};
 
 export type IUserResponse = {
   username: string;

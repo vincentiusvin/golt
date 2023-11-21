@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { CodeStatus } from "../shared_interfaces";
 
 export class Code {
   name: string;
@@ -28,6 +29,10 @@ export class Code {
     return readFileSync(this.get_code_path(), "utf-8");
   }
 
+  get_output(): CodeOutput {
+    return JSON.parse(readFileSync(this.get_output_path(), "utf-8"));
+  }
+
   post_code(code: string) {
     if (!existsSync(this.get_base_path())) {
       mkdirSync(this.get_base_path());
@@ -43,7 +48,7 @@ export class Code {
       const output = execSync(disasm).toString();
 
       result = {
-        status: CodeStatus.Sucess,
+        status: CodeStatus.Success,
         result: output,
       };
     } catch (error) {
@@ -58,12 +63,7 @@ export class Code {
   }
 }
 
-enum CodeStatus {
-  Sucess,
-  CompileError,
-}
-
-type CodeOutput = {
+export type CodeOutput = {
   status: CodeStatus;
   result: string;
 };
