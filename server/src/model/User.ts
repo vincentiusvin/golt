@@ -15,7 +15,7 @@ export class UserManager {
   constructor() {
     this.logged_in = {};
   }
-  login(username: string, password: string) {
+  login(username: string, password: string): User | null {
     if (password !== "123") {
       return null;
     }

@@ -6,17 +6,15 @@ import express, {
 } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { SessionManager } from "./model/Session";
-import { User } from "./model/User";
 import {
   ICodeGetRequest,
   ICodeGetResponse,
   ICodePostRequest,
   ICodePostResponse,
-  ISessionGetRequest,
-  ISessionGetResponse,
   ISessionPostRequest,
   ISessionPostResponse,
 } from "./shared_interfaces";
+import { UserManager } from "./model/User";
 
 type Request<T> = OldRequest<ParamsDictionary, unknown, T>;
 type Response<T> = OldResponse<T>;
@@ -24,12 +22,13 @@ type Response<T> = OldResponse<T>;
 const app = express();
 const port = 3000;
 const sessionManager = new SessionManager();
+const userManager = new UserManager();
 
 app.use(cookieParser());
 app.use(json());
 
 app.get("/api", (req: Request<undefined>, res: Response<string>) => {
-  res.send("API Endpoint :)");
+  res.status(200).send("API Endpoint :)");
 });
 
 app.get(
@@ -41,7 +40,7 @@ app.get(
     console.log(`GET /api/code by ${user.username}`);
 
     const { name } = req.body;
-    const code = user.code_list.find((x) => x.name === name);
+    const code = user.code_list.find((x) => x.file_name === name);
 
     res.status(200).json({
       code: code.get_code(),
@@ -59,7 +58,7 @@ app.post(
     console.log(`POST /api/code by ${user.username}`);
 
     const { code, name } = req.body;
-    const code_handler = user.code_list.find((x) => x.name === name);
+    const code_handler = user.code_list.find((x) => x.file_name === name);
     code_handler.post_code(code);
 
     res.status(200).json({
@@ -71,13 +70,25 @@ app.post(
 
 app.post(
   "/api/session",
-  (req: Request<ISessionPostRequest>, res: Response<ISessionPostResponse>) => {
+  (
+    req: Request<ISessionPostRequest | undefined>,
+    res: Response<ISessionPostResponse>
+  ) => {
     sessionManager.delete_session(SessionManager.get_session_token(req));
     const { username, password } = req.body;
-    sessionManager;
+    const user = userManager.login(username, password);
+    if (!user) {
+      res.sendStatus(401);
+      return;
+    }
+    const session = sessionManager.create_session(user);
+
+    res.status(200).send({
+      username: session.user.username,
+      expires: session.expires,
+      token: session.token,
+    });
   }
 );
-
-app.delete("/api/session", (req: Request, res: Response) => {});
 
 app.listen(port);

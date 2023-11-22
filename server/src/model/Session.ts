@@ -9,9 +9,10 @@ export class SessionManager {
     this.sessions = {};
   }
 
-  add_session(user: User) {
+  create_session(user: User) {
     const session = new Session(user);
     this.sessions[session.token] = session;
+    return session;
   }
 
   get_session(token: string): Session | null {
