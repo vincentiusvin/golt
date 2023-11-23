@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { CodeStatus } from "../shared_interfaces";
 import { db } from "../db";
+import { CodeStatus } from "../shared_interfaces";
 
 type CodeFields = {
   id: number;

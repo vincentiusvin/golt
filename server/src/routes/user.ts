@@ -20,19 +20,21 @@ export const UserAuthMiddleware = (
 };
 
 export const UserCollectionsPost = async (req: Request, res: Response) => {
-  const { name, password } = req.body as IUserCollectionPostRequest;
+  const { display_name, password } = req.body as IUserCollectionPostRequest;
 
-  if (await User.get_by_name(name)) {
+  if (await User.get_by_name(display_name)) {
     res.status(400).send("This name is already taken!");
     return;
   }
 
-  await User.add_to_db(name, password);
-  const user = await User.get_by_name(name);
+  await User.add_to_db(display_name, password);
+  const user = await User.get_by_name(display_name);
   if (user) {
-    res
-      .status(200)
-      .send({ id: user?.id, name: user.name } as IUserCollectionPostResponse);
+    const response: IUserCollectionPostResponse = {
+      id: user.id,
+      display_name: user.name,
+    };
+    res.status(200).send(response);
   } else {
     res.sendStatus(500);
   }

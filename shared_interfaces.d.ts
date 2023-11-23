@@ -4,7 +4,8 @@ export enum CodeStatus {
 }
 
 export type ICodeResourceGetResponse = {
-  name: number;
+  id: number;
+  display_name: string;
   status: CodeStatus;
   code: string;
   result: string;
@@ -16,27 +17,28 @@ export type ICodeResourcePutRequest = {
 };
 
 export type ICodeCollectionPostRequest = {
-  name: string;
+  display_name: string;
   code: string;
 };
 
 export type ISessionCollectionPostRequest = {
-  name: string;
+  display_name: string;
   password: string;
 };
 
 export type ISessionCollectionPostResponse = {
-  name: number;
+  user_id: number;
+  display_name: string;
   expires: Date;
   token: string;
 };
 
 export type IUserCollectionPostRequest = {
-  name: string;
+  display_name: string;
   password: string;
 };
 
 export type IUserCollectionPostResponse = {
   id: number;
-  name: string;
+  display_name: string;
 };

@@ -33,8 +33,8 @@ app.use(json());
 app.get("/api", (req, res) => {
   res.status(200).send("API Endpoint :)");
 });
-app.post("/api/users", UserCollectionsPost);
 
+app.post("/api/users", UserCollectionsPost);
 app.all("/api/users/:userID/*", UserAuthMiddleware);
 app.get("/api/users/:userID/codes", CodeCollectionGet);
 app.post("/api/users/:userID/codes", CodeCollectionPost);

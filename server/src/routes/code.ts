@@ -1,7 +1,6 @@
 import { NextFunction, Request } from "express";
 import { Code } from "../model/Code";
 import {
-  ICodeCollectionGetResponse,
   ICodeCollectionPostRequest,
   ICodeResourceGetResponse,
   ICodeResourcePutRequest,
@@ -30,39 +29,50 @@ export const CodeMiddleware = async (
 
 export const CodeCollectionGet = async (req: Request, res: UserResponse) => {
   const codes = await res.locals.user.get_codes();
-  const response = codes.map((x) => ({
-    code: x.get_code(),
-    ...x.get_output(),
-  }));
 
-  res.status(200).json(response as ICodeCollectionGetResponse);
+  const response: ICodeResourceGetResponse[] = codes.map((code_handler) => ({
+    code: code_handler.get_code(),
+    id: code_handler.id,
+    display_name: code_handler.name,
+    ...code_handler.get_output(),
+  }));
+  res.status(200).json(response);
 };
 
 export const CodeCollectionPost = async (req: Request, res: UserResponse) => {
-  const { code, name } = req.body as ICodeCollectionPostRequest;
+  const { code, display_name } = req.body as ICodeCollectionPostRequest;
   const user_id = res.locals.user.id;
 
-  await Code.add_to_db(name, user_id);
-  const code_handler = await Code.get_by_user_id_and_name(user_id, name);
+  await Code.add_to_db(display_name, user_id);
+  const code_handler = await Code.get_by_user_id_and_name(
+    user_id,
+    display_name
+  );
   if (!code_handler) {
     throw new Error("Code handler not found after being added to the DB!");
   }
 
   code_handler.post_code(code);
 
-  res.status(200).json({
+  const response: ICodeResourceGetResponse = {
     code: code_handler.get_code(),
+    id: code_handler.id,
+    display_name: code_handler.name,
     ...code_handler.get_output(),
-  } as ICodeResourceGetResponse);
+  };
+  res.status(200).json(response);
 };
 
 export const CodeResourceGet = (req: Request, res: CodeResponse) => {
   const code_handler = res.locals.code;
 
-  res.status(200).json({
+  const response: ICodeResourceGetResponse = {
     code: code_handler.get_code(),
+    id: code_handler.id,
+    display_name: code_handler.name,
     ...code_handler.get_output(),
-  } as ICodeResourceGetResponse);
+  };
+  res.status(200).json(response);
 };
 
 export const CodeResourcePut = (req: Request, res: CodeResponse) => {
@@ -70,8 +80,11 @@ export const CodeResourcePut = (req: Request, res: CodeResponse) => {
   const { code } = req.body as ICodeResourcePutRequest;
   code_handler.post_code(code);
 
-  res.status(200).json({
+  const response: ICodeResourceGetResponse = {
     code: code_handler.get_code(),
+    id: code_handler.id,
+    display_name: code_handler.name,
     ...code_handler.get_output(),
-  } as ICodeResourceGetResponse);
+  };
+  res.status(200).json(response);
 };

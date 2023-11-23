@@ -2,6 +2,7 @@ import { log } from "console";
 import {
   ICodeCollectionGetResponse,
   ICodeCollectionPostRequest,
+  ICodeResourceGetResponse,
   ISessionCollectionPostRequest,
   ISessionCollectionPostResponse,
   IUserCollectionPostRequest,
@@ -10,12 +11,12 @@ import {
 
 const sessionBody: IUserCollectionPostRequest | ISessionCollectionPostRequest =
   {
-    name: "abcd",
+    display_name: "abcd",
     password: "123",
   };
 
 const codeBody: ICodeCollectionPostRequest = {
-  name: "apitest",
+  display_name: "apitest",
   code: `\
 #include <stdio.h>
 
@@ -60,8 +61,9 @@ const fn = async () => {
     return;
   }
 
+  let code: ICodeResourceGetResponse;
   const addcode = await fetch(
-    `http://localhost:3000/api/users/${login_resp.name}/codes`,
+    `http://localhost:3000/api/users/${login_resp.display_name}/codes`,
     {
       method: "POST",
       headers: {
@@ -72,7 +74,26 @@ const fn = async () => {
     }
   );
   try {
-    const code: ICodeCollectionGetResponse = await addcode.clone().json();
+    code = await addcode.clone().json();
+    log(code);
+  } catch (error) {
+    log(await addcode.text());
+    return;
+  }
+
+  const viewcode = await fetch(
+    `http://localhost:3000/api/users/${login_resp.display_name}/codes/${code.id}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `session_token=${login_resp.token}`,
+      },
+      body: JSON.stringify(codeBody),
+    }
+  );
+  try {
+    const code: ICodeCollectionGetResponse = await viewcode.clone().json();
     log(code);
   } catch (error) {
     log(await addcode.text());

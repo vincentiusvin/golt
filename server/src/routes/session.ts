@@ -19,20 +19,23 @@ export const SessionCollectionPost = async (
     sessionManager.delete_session(current_token);
   }
 
-  const { name, password } = req.body as ISessionCollectionPostRequest;
+  const { display_name, password } = req.body as ISessionCollectionPostRequest;
 
-  const user = await User.login(name, password);
+  const user = await User.login(display_name, password);
   if (!user) {
     res.sendStatus(401);
     return;
   }
 
   const session = sessionManager.create_session(user.id);
-  res.status(200).send({
-    name: session.user_id,
+
+  const response: ISessionCollectionPostResponse = {
+    user_id: session.user_id,
+    display_name: user.name,
     expires: session.expires,
     token: session.token,
-  } as ISessionCollectionPostResponse);
+  };
+  res.status(200).send(response);
 };
 
 export const SessionMiddleware = async (
