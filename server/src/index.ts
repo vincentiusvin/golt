@@ -1,34 +1,26 @@
 import { json } from "body-parser";
 import cookieParser from "cookie-parser";
-import express, {
-  NextFunction,
-  Request as OldRequest,
-  Response,
-} from "express";
-import { Code } from "./model/Code";
+import express, { NextFunction, Request } from "express";
 import { SessionManager } from "./model/Session";
-import { User } from "./model/User";
 import {
   CodeCollectionGet,
   CodeCollectionPost,
   CodeMiddleware,
   CodeResourceGet,
+  CodeResourcePut,
 } from "./routes/code";
 import { SessionCollectionPost, SessionMiddleware } from "./routes/session";
-import { UserAuthMiddleware } from "./routes/user";
+import { UserAuthMiddleware, UserCollectionsPost } from "./routes/user";
+import { Response } from "./types";
 
 const app = express();
 const port = 3000;
 const sessionManager = new SessionManager();
 
-interface Request extends OldRequest {
-  user?: User; // authenticated user
-  code?: Code; // code handler
-}
 const LoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const msg =
     `${req.method} ${req.originalUrl}` +
-    (req.user ? ` by ${req.user.name}` : "");
+    (res.locals.user ? ` by ${res.locals.user.name}` : "");
   console.log(msg);
   next();
 };
@@ -41,14 +33,14 @@ app.use(json());
 app.get("/api", (req, res) => {
   res.status(200).send("API Endpoint :)");
 });
+app.post("/api/users", UserCollectionsPost);
 
 app.all("/api/users/:userID/*", UserAuthMiddleware);
 app.get("/api/users/:userID/codes", CodeCollectionGet);
 app.post("/api/users/:userID/codes", CodeCollectionPost);
 app.all("/api/users/:userID/codes/:codeID", CodeMiddleware);
 app.get("/api/users/:userID/codes/:codeID", CodeResourceGet);
-app.put("/api/users/:userID/codes/:codeID", CodeCollectionPost);
-
+app.put("/api/users/:userID/codes/:codeID", CodeResourcePut);
 app.post("/api/sessions", (...args) =>
   SessionCollectionPost(sessionManager, ...args)
 );

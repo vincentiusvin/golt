@@ -4,12 +4,15 @@ import {
   ICodeCollectionPostRequest,
   ISessionCollectionPostRequest,
   ISessionCollectionPostResponse,
+  IUserCollectionPostRequest,
+  IUserCollectionPostResponse,
 } from "../shared_interfaces";
 
-const sessionBody: ISessionCollectionPostRequest = {
-  name: "ucok",
-  password: "123",
-};
+const sessionBody: IUserCollectionPostRequest | ISessionCollectionPostRequest =
+  {
+    name: "ucok",
+    password: "123",
+  };
 
 const codeBody: ICodeCollectionPostRequest = {
   name: "apitest",
@@ -23,28 +26,38 @@ int main(){
 };
 
 const fn = async () => {
-  const res = await fetch("http://localhost:3000/api/sessions", {
+  const reg = await fetch("http://localhost:3000/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(sessionBody),
   });
-  const auth: ISessionCollectionPostResponse = await res.json();
-  log(auth);
+  const reg_resp: IUserCollectionPostResponse = await reg.json();
+  log(reg_resp);
 
-  const res2 = await fetch(
-    `http://localhost:3000/api/users/${auth.name}/codes`,
+  const login = await fetch("http://localhost:3000/api/sessions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(sessionBody),
+  });
+  const login_resp: ISessionCollectionPostResponse = await login.json();
+  log(login_resp);
+
+  const addcode = await fetch(
+    `http://localhost:3000/api/users/${login_resp.name}/codes`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Cookie: `session_token=${auth.token}`,
+        Cookie: `session_token=${login_resp.token}`,
       },
       body: JSON.stringify(codeBody),
     }
   );
-  const code: ICodeCollectionGetResponse = await res2.json();
+  const code: ICodeCollectionGetResponse = await addcode.json();
   log(code);
 };
 

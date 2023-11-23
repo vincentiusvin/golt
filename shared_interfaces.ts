@@ -30,3 +30,13 @@ export type ISessionCollectionPostResponse = {
   expires: Date;
   token: string;
 };
+
+export type IUserCollectionPostRequest = {
+  name: string;
+  password: string;
+};
+
+export type IUserCollectionPostResponse = {
+  id: number;
+  name: string;
+};

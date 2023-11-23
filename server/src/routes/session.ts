@@ -1,16 +1,11 @@
-import { NextFunction, Request as OldRequest, Response } from "express";
+import { NextFunction, Request } from "express";
 import { SessionManager } from "../model/Session";
 import { User } from "../model/User";
 import {
   ISessionCollectionPostRequest,
   ISessionCollectionPostResponse,
 } from "../shared_interfaces";
-import { Code } from "../model/Code";
-
-interface Request extends OldRequest {
-  user?: User; // authenticated user
-  code?: Code; // code handler
-}
+import { Response } from "../types";
 
 export const SessionCollectionPost = async (
   sessionManager: SessionManager,
@@ -19,13 +14,19 @@ export const SessionCollectionPost = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  sessionManager.delete_session(SessionManager.get_session_token(req));
+  const current_token = SessionManager.get_session_token(req);
+  if (current_token) {
+    sessionManager.delete_session(current_token);
+  }
+
   const { name, password } = req.body as ISessionCollectionPostRequest;
 
   const user = await User.login(name, password);
   if (!user) {
     res.sendStatus(401);
+    return;
   }
+
   const session = sessionManager.create_session(user.id);
   res.status(200).send({
     name: session.user_id,
@@ -40,11 +41,11 @@ export const SessionMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const session = sessionManager.get_session(
-    SessionManager.get_session_token(req)
-  );
-  if (session) {
-    req.user = await User.get_by_id(session.user_id);
+  const token = SessionManager.get_session_token(req);
+  const session = token && sessionManager.get_session(token);
+  const user = session && (await User.get_by_id(session.user_id));
+  if (user) {
+    res.locals.user = user;
   }
   next();
 };

@@ -63,12 +63,20 @@ export class Code {
         result: output,
       };
     } catch (error) {
-      const output = error.stdout.toString();
+      if (error instanceof Error && "stdout" in error) {
+        const stdout = error.stdout as Buffer;
+        const output = stdout.toString();
 
-      result = {
-        status: CodeStatus.CompileError,
-        result: output,
-      };
+        result = {
+          status: CodeStatus.CompileError,
+          result: output,
+        };
+      } else {
+        result = {
+          status: CodeStatus.CompileError,
+          result: "Unknown Error",
+        };
+      }
     }
     writeFileSync(this.get_output_path(), JSON.stringify(result));
   }
@@ -100,7 +108,7 @@ export class Code {
   static async get_by_user_id_and_code_id(
     user_id: number,
     code_id: number
-  ): Promise<Code> {
+  ): Promise<Code | null> {
     const conn = await db.getConnection();
     const res: CodeFields[] = await conn.query(
       `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id} AND id = ${code_id};`
@@ -111,7 +119,7 @@ export class Code {
   static async get_by_user_id_and_name(
     user_id: number,
     name: string
-  ): Promise<Code> {
+  ): Promise<Code | null> {
     const conn = await db.getConnection();
     const res: CodeFields[] = await conn.query(
       `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id} AND name = '${name}';`
