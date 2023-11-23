@@ -3,20 +3,20 @@ export enum CodeStatus {
   CompileError,
 }
 
-export type ICodeGetRequest = {
-  code: string;
-  name: string;
-};
-
 export type ICodeGetResponse = {
   status: CodeStatus;
   code: string;
   result: string;
 };
 
+export type ICodesGetResponse = {
+  status: CodeStatus;
+  code: string;
+  result: string;
+}[];
+
 export type ICodePostRequest = {
   code: string;
-  name: string;
 };
 
 export type ICodePostResponse = {
@@ -26,16 +26,12 @@ export type ICodePostResponse = {
 };
 
 export type ISessionPostRequest = {
-  username: string;
+  name: string;
   password: string;
 };
 
 export type ISessionPostResponse = {
-  username: string;
+  name: number;
   expires: Date;
   token: string;
-};
-
-export type IUserResponse = {
-  username: string;
 };

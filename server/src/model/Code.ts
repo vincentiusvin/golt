@@ -96,6 +96,17 @@ export class Code {
     );
     return res.map((x) => new Code(x.id, x.name, x.user_id));
   }
+
+  static async get_by_user_id_and_code_id(
+    user_id: number,
+    code_id: number
+  ): Promise<Code> {
+    const conn = await db.getConnection();
+    const res: CodeFields[] = await conn.query(
+      `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id} AND id = ${code_id};`
+    );
+    return res.length ? new Code(res[0].id, res[0].name, res[0].user_id) : null;
+  }
 }
 
 export type CodeOutput = {

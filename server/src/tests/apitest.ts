@@ -7,7 +7,7 @@ import {
 } from "../shared_interfaces";
 
 const sessionBody: ISessionPostRequest = {
-  username: "Udin",
+  name: "ucok",
   password: "123",
 };
 
@@ -19,7 +19,6 @@ int main(){
     printf("hi");
 }
 `,
-  name: "test",
 };
 
 const fn = async () => {

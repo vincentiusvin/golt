@@ -8,7 +8,7 @@ export class SessionManager {
     this.sessions = {};
   }
 
-  create_session(user_id: string) {
+  create_session(user_id: number) {
     const session = new Session(user_id);
     this.sessions[session.token] = session;
     return session;
@@ -40,11 +40,11 @@ export class SessionManager {
 }
 
 export class Session {
-  user_id: string;
+  user_id: number;
   expires: Date;
   token: string;
 
-  constructor(user_id: string) {
+  constructor(user_id: number) {
     const SECONDS = 3600;
     const current_time = new Date().getTime();
     const expiry_time = current_time + SECONDS * 1000;

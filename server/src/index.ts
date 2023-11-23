@@ -11,26 +11,30 @@ import {
   ICodeGetResponse,
   ICodePostRequest,
   ICodePostResponse,
+  ICodesGetResponse,
   ISessionPostRequest,
   ISessionPostResponse,
 } from "./shared_interfaces";
-import { User, UserManager } from "./model/User";
+import { User } from "./model/User";
+import { Code } from "./model/Code";
 
 const app = express();
 const port = 3000;
 const sessionManager = new SessionManager();
-const userManager = new UserManager();
 
 app.use(cookieParser());
 
 interface Request extends OldRequest {
-  user?: User;
+  user?: User; // authenticated user id
 }
-const auth = (req: Request, res: Response, next: NextFunction) => {
-  const user = sessionManager.get_session(
+
+const auth = async (req: Request, res: Response, next: NextFunction) => {
+  const session = sessionManager.get_session(
     SessionManager.get_session_token(req)
-  ).user;
-  req.userID = user;
+  );
+  if (session) {
+    req.user = await User.get_by_id(session.user_id);
+  }
   next();
 };
 app.use(auth);
@@ -38,7 +42,7 @@ app.use(auth);
 const logger = (req: Request, res: Response, next: NextFunction) => {
   const msg =
     `${req.method} ${req.originalUrl}` +
-    (req.user ? ` by ${req.user.username}` : "");
+    (req.user ? ` by ${req.user.name}` : "");
   console.log(msg);
   next();
 };
@@ -51,7 +55,7 @@ app.get("/api", (req, res) => {
 });
 
 app.get(
-  "/api/users/:userID",
+  "/api/users/:userID/*",
   (req: Request, res: Response, next: NextFunction) => {
     const userID = Number(req.params["userID"]);
     if (!req.user || req.user.id !== userID) {
@@ -62,60 +66,81 @@ app.get(
   }
 );
 
-app.get("/api/users/:userID/codes/:codeID", (req: Request, res: Response) => {
-  const { userID, codeID } = req.params;
-  res.status(200).json({
-    code: code.get_code(),
-    ...code.get_output(),
-  });
+app.get("/api/users/:userID/codes", async (req: Request, res: Response) => {
+  const codes = await req.user.get_codes();
+  const response = codes.map((x) => ({
+    code: x.get_code(),
+    ...x.get_output(),
+  }));
+
+  res.status(200).json(response as ICodesGetResponse);
 });
 
-app.get("/api/code", (req: Request, res: Response) => {
-  const user = sessionManager.get_session(
-    SessionManager.get_session_token(req)
-  ).user;
-  console.log(`GET /api/code by ${user.username}`);
+app.get(
+  "/api/users/:userID/codes/:codeID",
+  async (req: Request, res: Response) => {
+    const code_id = Number(req.params["codeID"]);
+    const code_handler = await Code.get_by_user_id_and_code_id(
+      req.user.id,
+      code_id
+    );
 
-  const { name } = req.body;
-  const code = user.code_list.find((x) => x.file_name === name);
+    res.status(200).json({
+      code: code_handler.get_code(),
+      ...code_handler.get_output(),
+    } as ICodeGetResponse);
+  }
+);
 
-  res.status(200).json({
-    code: code.get_code(),
-    ...code.get_output(),
-  });
-});
+app.get(
+  "/api/users/:userID/codes/:codeID",
+  async (req: Request, res: Response) => {
+    const codeID = Number(req.params["codeID"]);
+    const codes = await req.user.get_codes();
+    const code_handler = codes.find((x) => x.id === codeID);
 
-app.post("/api/code", (req: Request, res: Response) => {
-  const user = sessionManager.get_session(
-    SessionManager.get_session_token(req)
-  ).user;
-  console.log(`POST /api/code by ${user.username}`);
+    res.status(200).json({
+      code: code_handler.get_code(),
+      ...code_handler.get_output(),
+    } as ICodeGetResponse);
+  }
+);
 
-  const { code, name } = req.body;
-  const code_handler = user.code_list.find((x) => x.file_name === name);
-  code_handler.post_code(code);
+app.post(
+  "/api/users/:userID/codes/:codeID",
+  async (req: Request, res: Response) => {
+    const { code } = req.body as ICodePostRequest;
+    const codeID = Number(req.params["codeID"]);
+    const codes = await req.user.get_codes();
+    const code_handler = codes.find((x) => x.id === codeID);
 
-  res.status(200).json({
-    code: code_handler.get_code(),
-    ...code_handler.get_output(),
-  });
-});
+    code_handler.post_code(code);
 
-app.post("/api/session", (req: Request, res: Response) => {
+    res.status(200).json({
+      code: code_handler.get_code(),
+      ...code_handler.get_output(),
+    } as ICodePostResponse);
+  }
+);
+
+app.post("/api/session", async (req: Request, res: Response) => {
   sessionManager.delete_session(SessionManager.get_session_token(req));
-  const { username, password } = req.body;
-  const user = userManager.login(username, password);
+  const { name, password } = req.body as ISessionPostRequest;
+
+  const user = await User.login(name, password);
   if (!user) {
     res.sendStatus(401);
     return;
   }
-  const session = sessionManager.create_session(user);
 
+  const session = sessionManager.create_session(user.id);
   res.status(200).send({
-    username: session.user.username,
+    name: session.user_id,
     expires: session.expires,
     token: session.token,
-  });
+  } as ISessionPostResponse);
 });
 
-app.listen(port);
+app.listen(port, () => {
+  console.log("Listening on port " + port);
+});
