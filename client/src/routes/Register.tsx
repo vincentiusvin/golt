@@ -24,7 +24,7 @@ const Register = () => {
       if (x.status === 200) {
         setMsg([
           "good",
-          "Login sucessful! Redirecting in 3 seconds...",
+          "Registration sucessful! Redirecting to Login in 3 seconds...",
         ]);
         setTimeout(() => navigate("/login"), 3 * 1000);
       } else {

@@ -36,7 +36,7 @@ const Login = () => {
             setCookies("user_id", x.user_id);
             setMsg([
               "good",
-              "Login sucessfull! Redirecting in 3 seconds...",
+              "Login sucessfull! Redirecting to home in 3 seconds...",
             ]);
             setTimeout(() => navigate("/"), 3 * 1000);
           })

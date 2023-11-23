@@ -22,6 +22,16 @@ export const UserAuthMiddleware = (
 export const UserCollectionsPost = async (req: Request, res: Response) => {
   const { display_name, password } = req.body as IUserCollectionPostRequest;
 
+  if (!display_name.length) {
+    res.status(400).send("Name cannot be empty!");
+    return;
+  }
+
+  if (!password.length) {
+    res.status(400).send("Password cannot be empty!");
+    return;
+  }
+
   if (await User.get_by_name(display_name)) {
     res.status(400).send("This name is already taken!");
     return;
