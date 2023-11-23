@@ -5,7 +5,7 @@ import {
   ISessionCollectionPostRequest,
   ISessionCollectionPostResponse,
   IUserCollectionPostRequest,
-  IUserCollectionPostResponse,
+  IUserResourceGetResponse,
 } from "../shared_interfaces";
 
 const sessionBody: IUserCollectionPostRequest | ISessionCollectionPostRequest =
@@ -34,7 +34,7 @@ const fn = async () => {
     body: JSON.stringify(sessionBody),
   });
 
-  let reg_resp: IUserCollectionPostResponse;
+  let reg_resp: IUserResourceGetResponse;
   try {
     reg_resp = await reg.clone().json();
     log(reg_resp);

@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { User } from "./shared_interfaces";
+import { IUserResourceGetResponse } from "./shared_interfaces";
 
 const Navbar = () => {
   const [name, setName] = useState<string | null>(null);
   const [cookie] = useCookies();
   useEffect(() => {
-    fetch("/api/user", {
-      method: "GET",
-    })
-      .then((response) =>
-        response
-          .json()
-          .then((val: User) => {
-            setName(val.username);
-          })
-          .catch(() => undefined)
-      )
-      .catch(() => undefined);
+    cookie["user_id"]
+      ? fetch(`/api/users/${cookie["user_id"]}`, {
+          method: "GET",
+        })
+          .then((x) => x.json())
+          .then((x: IUserResourceGetResponse) =>
+            setName(x.display_name)
+          )
+      : setName("Guest");
   }, [cookie]);
   return (
     <div className="grid grid-flow-col gap-10 items-center mx-5 my-2">

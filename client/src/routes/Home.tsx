@@ -1,106 +1,84 @@
 import { Editor } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
-import { DisasmResult, UserCode } from "../shared_interfaces";
 import "./Home.css";
+import {
+  ICodeCollectionGetResponse,
+  ICodeResourceGetResponse,
+  ICodeResourcePutRequest,
+} from "../shared_interfaces";
+import { useCookies } from "react-cookie";
 
-type CodeProps = {
-  setDisasm: (msg: string) => void;
-};
+function Home() {
+  const [codeList, setCodeList] = useState<
+    { display_name: string; id: number }[]
+  >([]);
+  const [selectedCode, setSelectedCode] =
+    useState<ICodeResourceGetResponse | null>(null);
+  const [cookies] = useCookies();
 
-const Code = (props: CodeProps) => {
-  const { setDisasm } = props;
   const [lastTimeout, setLastTimeout] = useState<
     number | undefined
   >();
-  const makeRequest = (userCode: string) => {
-    const request: UserCode = { code: userCode };
-    fetch("/api/code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
-    }).then((response) => {
-      if (response.status == 201) {
-        fetch("/api/compile", {
-          method: "GET",
-        }).then((response) => {
-          response
-            .json()
-            .then((disasm: DisasmResult) =>
-              setDisasm(
-                disasm.status
-                  ? disasm.code
-                  : "Compilation Failed\n\n\n" + disasm.reason
-              )
-            );
-        });
-      }
-    });
-  };
-  const [oldCode, setOldCode] = useState(undefined);
-  useEffect(() => {});
-  const useOnce = () => {
-    if (oldCode) {
-      const temp = oldCode;
-      setOldCode(undefined);
-      return temp;
-    }
-  };
+
+  useEffect(() => {
+    fetch(`/api/users/${cookies["user_id"]}/codes`)
+      .then((x) => x.json())
+      .then((x: ICodeCollectionGetResponse) => setCodeList(x));
+  }, [cookies]);
+
   return (
-    <Editor
-      theme="vs-dark"
-      defaultLanguage="c"
-      value={useOnce()}
-      onMount={(editor) => {
-        fetch("/api/code", {
-          method: "GET",
-        })
-          .then((response) => {
-            response
-              .json()
-              .then((val: UserCode) => {
-                editor.setValue(
-                  val?.code || "int main(){\n\tint a = 5;\n}"
+    <>
+      <div className="flex gap-2">
+        {codeList.map(({ display_name, id }, i) => (
+          <button
+            key={id}
+            className={
+              "p-2 rounded" + (i % 2 === 0 ? " bg-bg" : " bg-white")
+            }
+            onClick={() => {
+              fetch(`/api/users/${cookies["user_id"]}/codes/${id}`)
+                .then((x) => x.json())
+                .then((x: ICodeResourceGetResponse) =>
+                  setSelectedCode(x)
                 );
-              })
-              .catch(() =>
-                editor.setValue("int main(){\n\tint a = 5;\n}")
-              );
-          })
-          .catch(() =>
-            editor.setValue("int main(){\n\tint a = 5;\n}")
-          );
-      }}
-      onChange={(value) => {
-        if (!value) {
-          return;
-        }
-        clearTimeout(lastTimeout);
-        setLastTimeout(setTimeout(() => makeRequest(value), 500));
-      }}
-    />
-  );
-};
-
-type DisasmProps = {
-  disasm: string;
-};
-
-const Disasm = (props: DisasmProps) => {
-  const { disasm } = props;
-  return (
-    <div className="overflow-scroll bg-bg">
-      <pre>{disasm}</pre>
-    </div>
-  );
-};
-
-function Home() {
-  const [disasmCode, setDisasmCode] = useState("");
-  return (
-    <div className="grid grid-cols-2 h-screen p-5 gap-2">
-      <Code setDisasm={setDisasmCode} />
-      <Disasm disasm={disasmCode} />
-    </div>
+            }}
+          >
+            {display_name}
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 h-screen p-5 gap-2">
+        <Editor
+          theme="vs-dark"
+          defaultLanguage="c"
+          value={selectedCode?.code}
+          onChange={(val) => {
+            clearTimeout(lastTimeout);
+            const body: ICodeResourcePutRequest = {
+              code: val || "",
+            };
+            const newTimeout = setTimeout(() => {
+              fetch(
+                `/api/users/${cookies["user_id"]}/codes/${selectedCode?.id}`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(body),
+                }
+              )
+                .then((x) => x.json())
+                .then((x: ICodeResourceGetResponse) =>
+                  setSelectedCode(x)
+                );
+            }, 500);
+            setLastTimeout(Number(newTimeout));
+          }}
+        />
+        <div className="overflow-scroll bg-bg">
+          <pre>{selectedCode?.result}</pre>
+        </div>
+      </div>
+    </>
   );
 }
 

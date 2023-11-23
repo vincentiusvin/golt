@@ -2,9 +2,9 @@ import { NextFunction, Request } from "express";
 import { User } from "../model/User";
 import {
   IUserCollectionPostRequest,
-  IUserCollectionPostResponse,
+  IUserResourceGetResponse,
 } from "../shared_interfaces";
-import { Response } from "../types";
+import { Response, UserResponse } from "../types";
 
 export const UserAuthMiddleware = (
   req: Request,
@@ -30,7 +30,7 @@ export const UserCollectionsPost = async (req: Request, res: Response) => {
   await User.add_to_db(display_name, password);
   const user = await User.get_by_name(display_name);
   if (user) {
-    const response: IUserCollectionPostResponse = {
+    const response: IUserResourceGetResponse = {
       id: user.id,
       display_name: user.name,
     };
@@ -38,4 +38,12 @@ export const UserCollectionsPost = async (req: Request, res: Response) => {
   } else {
     res.sendStatus(500);
   }
+};
+
+export const UserResourceGet = async (req: Request, res: UserResponse) => {
+  const response: IUserResourceGetResponse = {
+    id: res.locals.user.id,
+    display_name: res.locals.user.name,
+  };
+  res.status(200).send(response);
 };

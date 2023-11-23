@@ -38,7 +38,7 @@ export type IUserCollectionPostRequest = {
   password: string;
 };
 
-export type IUserCollectionPostResponse = {
+export type IUserResourceGetResponse = {
   id: number;
   display_name: string;
 };

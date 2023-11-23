@@ -10,7 +10,11 @@ import {
   CodeResourcePut,
 } from "./routes/code";
 import { SessionCollectionPost, SessionMiddleware } from "./routes/session";
-import { UserAuthMiddleware, UserCollectionsPost } from "./routes/user";
+import {
+  UserAuthMiddleware,
+  UserCollectionsPost,
+  UserResourceGet,
+} from "./routes/user";
 import { Response } from "./types";
 
 const app = express();
@@ -36,6 +40,7 @@ app.get("/api", (req, res) => {
 
 app.post("/api/users", UserCollectionsPost);
 app.all("/api/users/:userID", UserAuthMiddleware);
+app.get("/api/users/:userID", UserResourceGet);
 app.get("/api/users/:userID/codes", CodeCollectionGet);
 app.post("/api/users/:userID/codes", CodeCollectionPost);
 app.all("/api/users/:userID/codes/:codeID", CodeAuthMiddleware);

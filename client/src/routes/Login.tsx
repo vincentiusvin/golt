@@ -1,5 +1,8 @@
 import { useCookies } from "react-cookie";
-import { Session } from "../shared_interfaces";
+import {
+  ISessionCollectionPostRequest,
+  ISessionCollectionPostResponse,
+} from "../shared_interfaces";
 
 const Login = () => {
   const [, setCookies] = useCookies();
@@ -10,18 +13,21 @@ const Login = () => {
     if (!form || !(form instanceof HTMLFormElement)) {
       return;
     }
-    const data = Object.fromEntries(new FormData(form));
-    fetch("/api/session", {
+
+    const data = Object.fromEntries(
+      new FormData(form)
+    ) as ISessionCollectionPostRequest;
+
+    fetch("/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).then((response) => {
-      response.json().then((val: Session) => {
-        setCookies("session_token", val.token, {
-          expires: new Date(val.expires),
-        });
+    })
+      .then((x) => x.json())
+      .then((x: ISessionCollectionPostResponse) => {
+        setCookies("session_token", x.token);
+        setCookies("user_id", x.user_id);
       });
-    });
   };
 
   return (
@@ -31,7 +37,7 @@ const Login = () => {
         className="grid w-1/4 mx-auto gridForm gap-x-5 gap-y-2"
       >
         Username:
-        <input name="username" />
+        <input name="display_name" />
         Password:
         <input name="password" />
         <button type="submit" className="col-span-2 bg-bg">
