@@ -1,27 +1,18 @@
-import { Code } from "./Code";
+import { db } from "../db";
 
 export class User {
+  id: number;
   username: string;
   password: string;
-  code_list: Code[];
-  constructor(username: string) {
-    this.username = username;
-    this.code_list = [new Code("test", username)];
+  constructor(id: number) {
+    this.id = id;
   }
-}
 
-export class UserManager {
-  logged_in: { [username: string]: User };
-  constructor() {
-    this.logged_in = {};
-  }
-  login(username: string, password: string): User | null {
-    if (password !== "123") {
-      return null;
-    }
-    if (!this.logged_in[username]) {
-      this.logged_in[username] = new User(username);
-    }
-    return this.logged_in[username];
+  static async get_by_id(id: number) {
+    const conn = await db.getConnection();
+    const res: User[] = await conn.query(
+      `SELECT id, name, password FROM users WHERE id = ${id}`
+    );
+    return res.length ? res[0] : null;
   }
 }

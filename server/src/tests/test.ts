@@ -4,7 +4,7 @@ import {
   ICodePostResponse,
   ISessionPostRequest,
   ISessionPostResponse,
-} from "./shared_interfaces";
+} from "../shared_interfaces";
 
 const sessionBody: ISessionPostRequest = {
   username: "Udin",

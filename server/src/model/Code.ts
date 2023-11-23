@@ -3,12 +3,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { CodeStatus } from "../shared_interfaces";
 
 export class Code {
+  id: number;
   file_name: string;
   folder_name: string;
 
-  constructor(file_name: string, folder_name: string) {
-    this.file_name = file_name;
-    this.folder_name = folder_name;
+  constructor(id: number) {
+    this.id = id;
+    this.file_name = "abcd";
+    this.folder_name = "efgh";
   }
 
   private get_base_path() {

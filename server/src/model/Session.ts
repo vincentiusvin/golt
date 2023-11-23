@@ -1,6 +1,5 @@
 import { randomUUID } from "crypto";
 import { Request } from "express";
-import { User } from "./User";
 
 export class SessionManager {
   private sessions: { [token: string]: Session };
@@ -9,8 +8,8 @@ export class SessionManager {
     this.sessions = {};
   }
 
-  create_session(user: User) {
-    const session = new Session(user);
+  create_session(user_id: string) {
+    const session = new Session(user_id);
     this.sessions[session.token] = session;
     return session;
   }
@@ -41,17 +40,17 @@ export class SessionManager {
 }
 
 export class Session {
-  user: User;
+  user_id: string;
   expires: Date;
   token: string;
 
-  constructor(user: User) {
+  constructor(user_id: string) {
     const SECONDS = 3600;
     const current_time = new Date().getTime();
     const expiry_time = current_time + SECONDS * 1000;
 
     this.expires = new Date(expiry_time);
     this.token = randomUUID();
-    this.user = user;
+    this.user_id = user_id;
   }
 }
