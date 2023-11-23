@@ -26,7 +26,6 @@
   },
   "scripts": {
     "start": "nodemon src/index.ts",
-    "test": "ts-node src/test.ts",
     "build": "tsc",
     "serve": "node dist/index.js"
   },

@@ -13,7 +13,7 @@ export const UserAuthMiddleware = (
 ) => {
   const userID = Number(req.params["userID"]);
   if (!res.locals.user || res.locals.user.id !== userID) {
-    res.send(401);
+    res.sendStatus(401);
   } else {
     next();
   }

@@ -7,10 +7,10 @@ async function make() {
   console.log(user);
 
   // await user.add_code("modeltest");
-  const code = await Code.get_by_user_id_and_name(user.id, "modeltest");
+  const code = await Code.get_by_user_id_and_name(user!.id, "modeltest");
   console.log(code);
 
-  code.post_code(`\
+  code!.post_code(`\
  #include <stdio.h>
 
  int main(){

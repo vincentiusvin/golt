@@ -7,7 +7,7 @@ import {
 } from "../shared_interfaces";
 import { CodeResponse, UserResponse } from "../types";
 
-export const CodeMiddleware = async (
+export const CodeAuthMiddleware = async (
   req: Request,
   res: UserResponse,
   next: NextFunction

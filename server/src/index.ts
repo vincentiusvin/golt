@@ -3,9 +3,9 @@ import cookieParser from "cookie-parser";
 import express, { NextFunction, Request } from "express";
 import { SessionManager } from "./model/Session";
 import {
+  CodeAuthMiddleware,
   CodeCollectionGet,
   CodeCollectionPost,
-  CodeMiddleware,
   CodeResourceGet,
   CodeResourcePut,
 } from "./routes/code";
@@ -35,10 +35,10 @@ app.get("/api", (req, res) => {
 });
 
 app.post("/api/users", UserCollectionsPost);
-app.all("/api/users/:userID/*", UserAuthMiddleware);
+app.all("/api/users/:userID", UserAuthMiddleware);
 app.get("/api/users/:userID/codes", CodeCollectionGet);
 app.post("/api/users/:userID/codes", CodeCollectionPost);
-app.all("/api/users/:userID/codes/:codeID", CodeMiddleware);
+app.all("/api/users/:userID/codes/:codeID", CodeAuthMiddleware);
 app.get("/api/users/:userID/codes/:codeID", CodeResourceGet);
 app.put("/api/users/:userID/codes/:codeID", CodeResourcePut);
 app.post("/api/sessions", (...args) =>

@@ -1,6 +1,5 @@
 import { log } from "console";
 import {
-  ICodeCollectionGetResponse,
   ICodeCollectionPostRequest,
   ICodeResourceGetResponse,
   ISessionCollectionPostRequest,
@@ -63,7 +62,7 @@ const fn = async () => {
 
   let code: ICodeResourceGetResponse;
   const addcode = await fetch(
-    `http://localhost:3000/api/users/${login_resp.display_name}/codes`,
+    `http://localhost:3000/api/users/${login_resp.user_id}/codes`,
     {
       method: "POST",
       headers: {
@@ -82,21 +81,21 @@ const fn = async () => {
   }
 
   const viewcode = await fetch(
-    `http://localhost:3000/api/users/${login_resp.display_name}/codes/${code.id}`,
+    `http://localhost:3000/api/users/${login_resp.user_id}/codes`,
     {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Cookie: `session_token=${login_resp.token}`,
       },
-      body: JSON.stringify(codeBody),
+      // body: JSON.stringify(codeBody),
     }
   );
   try {
-    const code: ICodeCollectionGetResponse = await viewcode.clone().json();
+    code = await viewcode.clone().json();
     log(code);
   } catch (error) {
-    log(await addcode.text());
+    log(await viewcode.text());
   }
 };
 
