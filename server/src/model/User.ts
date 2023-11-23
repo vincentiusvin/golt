@@ -27,8 +27,7 @@ export class User {
   }
 
   static async get_by_id(id: number): Promise<User | null> {
-    const conn = await db.getConnection();
-    const res: UserFields[] = await conn.query(
+    const res: UserFields[] = await db.query(
       `SELECT id, name, password FROM users WHERE id = ${id};`
     );
     return res.length
@@ -37,16 +36,14 @@ export class User {
   }
 
   static async add_to_db(name: string, password: string) {
-    const conn = await db.getConnection();
-    const res = await conn.query(
+    const res = await db.query(
       `INSERT INTO users(name, password) VALUES ('${name}', '${password}');`
     );
     return res;
   }
 
   static async get_by_name(name: string): Promise<User | null> {
-    const conn = await db.getConnection();
-    const res: UserFields[] = await conn.query(
+    const res: UserFields[] = await db.query(
       `SELECT id, name, password FROM users WHERE name = '${name}';`
     );
     return res.length
@@ -55,8 +52,7 @@ export class User {
   }
 
   static async login(name: string, password: string): Promise<User | null> {
-    const conn = await db.getConnection();
-    const res: UserFields[] = await conn.query(
+    const res: UserFields[] = await db.query(
       `SELECT id, name, password FROM users WHERE name = '${name}' AND password = '${password}';`
     );
     return res.length

@@ -10,7 +10,7 @@ import {
 
 const sessionBody: IUserCollectionPostRequest | ISessionCollectionPostRequest =
   {
-    name: "ucok",
+    name: "abcd",
     password: "123",
   };
 
@@ -33,8 +33,15 @@ const fn = async () => {
     },
     body: JSON.stringify(sessionBody),
   });
-  const reg_resp: IUserCollectionPostResponse = await reg.json();
-  log(reg_resp);
+
+  let reg_resp: IUserCollectionPostResponse;
+  try {
+    reg_resp = await reg.clone().json();
+    log(reg_resp);
+  } catch (error) {
+    log(await reg.text());
+    return;
+  }
 
   const login = await fetch("http://localhost:3000/api/sessions", {
     method: "POST",
@@ -43,8 +50,15 @@ const fn = async () => {
     },
     body: JSON.stringify(sessionBody),
   });
-  const login_resp: ISessionCollectionPostResponse = await login.json();
-  log(login_resp);
+
+  let login_resp: ISessionCollectionPostResponse;
+  try {
+    login_resp = await login.clone().json();
+    log(login_resp);
+  } catch (error) {
+    log(await login.text());
+    return;
+  }
 
   const addcode = await fetch(
     `http://localhost:3000/api/users/${login_resp.name}/codes`,
@@ -57,8 +71,12 @@ const fn = async () => {
       body: JSON.stringify(codeBody),
     }
   );
-  const code: ICodeCollectionGetResponse = await addcode.json();
-  log(code);
+  try {
+    const code: ICodeCollectionGetResponse = await addcode.clone().json();
+    log(code);
+  } catch (error) {
+    log(await addcode.text());
+  }
 };
 
 fn();

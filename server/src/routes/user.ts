@@ -5,7 +5,6 @@ import {
   IUserCollectionPostResponse,
 } from "../shared_interfaces";
 import { Response } from "../types";
-import { SqlError } from "mariadb";
 
 export const UserAuthMiddleware = (
   req: Request,
@@ -22,15 +21,13 @@ export const UserAuthMiddleware = (
 
 export const UserCollectionsPost = async (req: Request, res: Response) => {
   const { name, password } = req.body as IUserCollectionPostRequest;
-  try {
-    await User.add_to_db(name, password);
-  } catch (error) {
-    if (error instanceof SqlError) {
-      res.status(401).send(error.sqlMessage);
-      return;
-    }
+
+  if (await User.get_by_name(name)) {
+    res.status(400).send("This name is already taken!");
+    return;
   }
 
+  await User.add_to_db(name, password);
   const user = await User.get_by_name(name);
   if (user) {
     res
