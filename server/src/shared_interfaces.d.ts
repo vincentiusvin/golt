@@ -1,0 +1,1 @@
+../../shared_interfaces.d.ts
