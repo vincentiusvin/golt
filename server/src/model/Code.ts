@@ -64,8 +64,7 @@ export class Code {
       };
     } catch (error) {
       if (error instanceof Error && "stdout" in error) {
-        const stdout = error.stdout as Buffer;
-        const output = stdout.toString();
+        const output = error.message;
 
         result = {
           status: CodeStatus.CompileError,

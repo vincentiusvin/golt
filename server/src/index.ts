@@ -39,11 +39,11 @@ app.get("/api", (req, res) => {
 });
 
 app.post("/api/users", UserCollectionsPost);
-app.all("/api/users/:userID", UserAuthMiddleware);
+app.all("/api/users/:userID*", UserAuthMiddleware);
 app.get("/api/users/:userID", UserResourceGet);
 app.get("/api/users/:userID/codes", CodeCollectionGet);
 app.post("/api/users/:userID/codes", CodeCollectionPost);
-app.all("/api/users/:userID/codes/:codeID", CodeAuthMiddleware);
+app.all("/api/users/:userID/codes/:codeID*", CodeAuthMiddleware);
 app.get("/api/users/:userID/codes/:codeID", CodeResourceGet);
 app.put("/api/users/:userID/codes/:codeID", CodeResourcePut);
 app.post("/api/sessions", (...args) =>
