@@ -3,34 +3,29 @@ export enum CodeStatus {
   CompileError,
 }
 
-export type ICodeGetResponse = {
+export type ICodeResourceGetResponse = {
+  name: number;
   status: CodeStatus;
   code: string;
   result: string;
 };
+export type ICodeCollectionGetResponse = ICodeResourceGetResponse[];
 
-export type ICodesGetResponse = {
-  status: CodeStatus;
-  code: string;
-  result: string;
-}[];
-
-export type ICodePostRequest = {
+export type ICodeResourcePutRequest = {
   code: string;
 };
 
-export type ICodePostResponse = {
-  status: CodeStatus;
+export type ICodeCollectionPostRequest = {
+  name: string;
   code: string;
-  result: string;
 };
 
-export type ISessionPostRequest = {
+export type ISessionCollectionPostRequest = {
   name: string;
   password: string;
 };
 
-export type ISessionPostResponse = {
+export type ISessionCollectionPostResponse = {
   name: number;
   expires: Date;
   token: string;

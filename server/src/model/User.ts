@@ -57,7 +57,7 @@ export class User {
   static async login(name: string, password: string): Promise<User | null> {
     const conn = await db.getConnection();
     const res: UserFields[] = await conn.query(
-      `SELECT id, name, password FROM users WHERE name = '${name} AND password = '${password}'';`
+      `SELECT id, name, password FROM users WHERE name = '${name}' AND password = '${password}';`
     );
     return res.length
       ? new User(res[0].id, res[0].name, res[0].password)
