@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { Request } from "express";
+import { SessionResource } from "../shared_interfaces";
 
 export class SessionManager {
   private sessions: { [token: string]: Session };
@@ -52,5 +53,13 @@ export class Session {
     this.expires = new Date(expiry_time);
     this.token = randomUUID();
     this.user_id = user_id;
+  }
+
+  to_json(): SessionResource {
+    return {
+      token: this.token,
+      expires: this.expires,
+      user_id: this.user_id,
+    };
   }
 }

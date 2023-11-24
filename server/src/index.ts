@@ -15,19 +15,11 @@ import {
   UserCollectionsPost,
   UserResourceGet,
 } from "./routes/user";
-import { Response } from "./types";
+import { LoggerMiddleware } from "./routes/logger";
 
 const app = express();
 const port = 3000;
 const sessionManager = new SessionManager();
-
-const LoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const msg =
-    `${req.method} ${req.originalUrl}` +
-    (res.locals.user ? ` by ${res.locals.user.name}` : "");
-  console.log(msg);
-  next();
-};
 
 app.use(cookieParser());
 app.use((...args) => SessionMiddleware(sessionManager, ...args));

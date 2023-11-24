@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { db } from "../db";
-import { CodeStatus } from "../shared_interfaces";
+import { CodeResource } from "../shared_interfaces";
 
 type CodeFields = {
   id: number;
@@ -59,7 +59,7 @@ export class Code {
       const output = execSync(disasm).toString();
 
       result = {
-        status: CodeStatus.Success,
+        compile_success: true,
         result: output,
       };
     } catch (error) {
@@ -67,17 +67,26 @@ export class Code {
         const output = error.message;
 
         result = {
-          status: CodeStatus.CompileError,
+          compile_success: false,
           result: output,
         };
       } else {
         result = {
-          status: CodeStatus.CompileError,
+          compile_success: false,
           result: "Unknown Error",
         };
       }
     }
     writeFileSync(this.get_output_path(), JSON.stringify(result));
+  }
+
+  to_json(): CodeResource {
+    return {
+      code: this.get_code(),
+      display_name: this.name,
+      id: this.id,
+      ...this.get_output(),
+    };
   }
 
   static async add_to_db(name: string, user_id: number) {
@@ -123,6 +132,6 @@ export class Code {
 }
 
 export type CodeOutput = {
-  status: CodeStatus;
+  compile_success: boolean;
   result: string;
 };

@@ -1,10 +1,7 @@
-import { NextFunction, Request } from "express";
+import { NextFunction } from "express";
 import { User } from "../model/User";
-import {
-  IUserCollectionPostRequest,
-  IUserResourceGetResponse,
-} from "../shared_interfaces";
-import { Response, UserResponse } from "../types";
+import { UserResource, UserResourceInput } from "../shared_interfaces";
+import { Request, Response, UserResponse } from "../types";
 
 export const UserAuthMiddleware = (
   req: Request,
@@ -13,47 +10,49 @@ export const UserAuthMiddleware = (
 ) => {
   const userID = Number(req.params["userID"]);
   if (!res.locals.user || res.locals.user.id !== userID) {
-    res.sendStatus(401);
+    res.status(401).send({ success: false, message: "Unauthorized!" });
   } else {
     next();
   }
 };
 
-export const UserCollectionsPost = async (req: Request, res: Response) => {
-  const { display_name, password } = req.body as IUserCollectionPostRequest;
+export const UserCollectionsPost = async (
+  req: Request<UserResourceInput>,
+  res: Response<UserResource>
+) => {
+  const { display_name, password } = req.body;
 
   if (!display_name.length) {
-    res.status(400).send("Name cannot be empty!");
+    res.status(400).send({ success: false, message: "Name cannot be empty!" });
     return;
   }
 
   if (!password.length) {
-    res.status(400).send("Password cannot be empty!");
+    res
+      .status(400)
+      .send({ success: false, message: "Password cannot be empty!" });
     return;
   }
 
   if (await User.get_by_name(display_name)) {
-    res.status(400).send("This name is already taken!");
+    res
+      .status(400)
+      .send({ success: false, message: "This name is already taken!" });
     return;
   }
 
   await User.add_to_db(display_name, password);
   const user = await User.get_by_name(display_name);
   if (user) {
-    const response: IUserResourceGetResponse = {
-      id: user.id,
-      display_name: user.name,
-    };
-    res.status(200).send(response);
+    res.status(200).send({ success: true, ...user.to_json() });
   } else {
     res.sendStatus(500);
   }
 };
 
-export const UserResourceGet = async (req: Request, res: UserResponse) => {
-  const response: IUserResourceGetResponse = {
-    id: res.locals.user.id,
-    display_name: res.locals.user.name,
-  };
-  res.status(200).send(response);
+export const UserResourceGet = async (
+  req: Request,
+  res: UserResponse<UserResource>
+) => {
+  res.status(200).send({ success: true, ...res.locals.user.to_json() });
 };

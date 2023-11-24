@@ -1,16 +1,13 @@
-import { NextFunction, Request } from "express";
+import { NextFunction } from "express";
 import { SessionManager } from "../model/Session";
 import { User } from "../model/User";
-import {
-  ISessionCollectionPostRequest,
-  ISessionCollectionPostResponse,
-} from "../shared_interfaces";
-import { Response } from "../types";
+import { Request, Response } from "../types";
+import { SessionResource, SessionResourceInput } from "../shared_interfaces";
 
 export const SessionCollectionPost = async (
   sessionManager: SessionManager,
-  req: Request,
-  res: Response,
+  req: Request<SessionResourceInput>,
+  res: Response<SessionResource>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
@@ -19,7 +16,7 @@ export const SessionCollectionPost = async (
     sessionManager.delete_session(current_token);
   }
 
-  const { display_name, password } = req.body as ISessionCollectionPostRequest;
+  const { display_name, password } = req.body;
 
   const user = await User.login(display_name, password);
   if (!user) {
@@ -29,13 +26,7 @@ export const SessionCollectionPost = async (
 
   const session = sessionManager.create_session(user.id);
 
-  const response: ISessionCollectionPostResponse = {
-    user_id: session.user_id,
-    display_name: user.name,
-    expires: session.expires,
-    token: session.token,
-  };
-  res.status(200).send(response);
+  res.status(200).send({ success: true, ...session.to_json() });
 };
 
 export const SessionMiddleware = async (

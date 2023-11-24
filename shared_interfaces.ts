@@ -1,44 +1,44 @@
-export enum CodeStatus {
-  Success,
-  CompileError,
-}
-
-export type ICodeResourceGetResponse = {
+export type CodeResource = {
   id: number;
   display_name: string;
-  status: CodeStatus;
+  compile_success: boolean;
   code: string;
   result: string;
 };
-export type ICodeCollectionGetResponse = ICodeResourceGetResponse[];
 
-export type ICodeResourcePutRequest = {
-  code: string;
-};
-
-export type ICodeCollectionPostRequest = {
+export type CodeResourceInput = {
   display_name: string;
   code: string;
 };
 
-export type ISessionCollectionPostRequest = {
-  display_name: string;
-  password: string;
-};
-
-export type ISessionCollectionPostResponse = {
-  user_id: number;
-  display_name: string;
+export type SessionResource = {
   expires: Date;
   token: string;
+  user_id: number;
 };
 
-export type IUserCollectionPostRequest = {
+export type SessionResourceInput = {
   display_name: string;
   password: string;
 };
 
-export type IUserResourceGetResponse = {
+export type UserResource = {
   id: number;
   display_name: string;
 };
+
+export type UserResourceInput = {
+  display_name: string;
+  password: string;
+};
+
+export type Collection<T> = { resources: T[] };
+
+export type ResponseBody<T> =
+  | {
+      success: false;
+      message: string;
+    }
+  | ({
+      success: true;
+    } & T);

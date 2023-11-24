@@ -1,11 +1,11 @@
-import { NextFunction, Request } from "express";
+import { NextFunction } from "express";
 import { Code } from "../model/Code";
+import { CodeResponse, Request, UserResponse } from "../types";
 import {
-  ICodeCollectionPostRequest,
-  ICodeResourceGetResponse,
-  ICodeResourcePutRequest,
+  CodeResource,
+  CodeResourceInput,
+  Collection,
 } from "../shared_interfaces";
-import { CodeResponse, UserResponse } from "../types";
 
 export const CodeAuthMiddleware = async (
   req: Request,
@@ -19,7 +19,7 @@ export const CodeAuthMiddleware = async (
   );
 
   if (!code_handler) {
-    res.sendStatus(404);
+    res.status(404).send({ success: false, message: "Unauthorized!" });
     return;
   }
 
@@ -27,23 +27,25 @@ export const CodeAuthMiddleware = async (
   next();
 };
 
-export const CodeCollectionGet = async (req: Request, res: UserResponse) => {
+export const CodeCollectionGet = async (
+  req: Request,
+  res: UserResponse<Collection<CodeResource>>
+) => {
   const codes = await res.locals.user.get_codes();
 
-  const response: ICodeResourceGetResponse[] = codes.map((code_handler) => ({
-    code: code_handler.get_code(),
-    id: code_handler.id,
-    display_name: code_handler.name,
-    ...code_handler.get_output(),
-  }));
-  res.status(200).json(response);
+  res
+    .status(200)
+    .json({ success: true, resources: codes.map((x) => x.to_json()) });
 };
 
-export const CodeCollectionPost = async (req: Request, res: UserResponse) => {
-  const { code, display_name } = req.body as ICodeCollectionPostRequest;
+export const CodeCollectionPost = async (
+  req: Request<CodeResourceInput>,
+  res: UserResponse<CodeResource>
+) => {
+  const { code, display_name } = req.body;
   const user_id = res.locals.user.id;
 
-  await Code.add_to_db(display_name, user_id);
+  await Code.add_to_db(code, user_id);
   const code_handler = await Code.get_by_user_id_and_name(
     user_id,
     display_name
@@ -54,37 +56,25 @@ export const CodeCollectionPost = async (req: Request, res: UserResponse) => {
 
   code_handler.post_code(code);
 
-  const response: ICodeResourceGetResponse = {
-    code: code_handler.get_code(),
-    id: code_handler.id,
-    display_name: code_handler.name,
-    ...code_handler.get_output(),
-  };
-  res.status(200).json(response);
+  res.status(200).json({ success: true, ...code_handler.to_json() });
 };
 
-export const CodeResourceGet = (req: Request, res: CodeResponse) => {
+export const CodeResourceGet = (
+  req: Request,
+  res: CodeResponse<CodeResource>
+) => {
   const code_handler = res.locals.code;
 
-  const response: ICodeResourceGetResponse = {
-    code: code_handler.get_code(),
-    id: code_handler.id,
-    display_name: code_handler.name,
-    ...code_handler.get_output(),
-  };
-  res.status(200).json(response);
+  res.status(200).json({ success: true, ...code_handler.to_json() });
 };
 
-export const CodeResourcePut = (req: Request, res: CodeResponse) => {
+export const CodeResourcePut = (
+  req: Request<CodeResourceInput>,
+  res: CodeResponse<CodeResource>
+) => {
   const code_handler = res.locals.code;
-  const { code } = req.body as ICodeResourcePutRequest;
+  const { code } = req.body;
   code_handler.post_code(code);
 
-  const response: ICodeResourceGetResponse = {
-    code: code_handler.get_code(),
-    id: code_handler.id,
-    display_name: code_handler.name,
-    ...code_handler.get_output(),
-  };
-  res.status(200).json(response);
+  res.status(200).json({ success: true, ...code_handler.to_json() });
 };

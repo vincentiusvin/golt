@@ -1,4 +1,5 @@
 import { db } from "../db";
+import { UserResource } from "../shared_interfaces";
 import { Code } from "./Code";
 
 type UserFields = {
@@ -24,6 +25,13 @@ export class User {
 
   async add_code(code_name: string) {
     return await Code.add_to_db(code_name, this.id);
+  }
+
+  to_json(): UserResource {
+    return {
+      id: this.id,
+      display_name: this.name,
+    };
   }
 
   static async get_by_id(id: number): Promise<User | null> {
