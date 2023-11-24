@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSession } from "../model";
+import { addUser } from "../model";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ const Register = () => {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const registerHandler = () => {
-    getSession(
+    addUser(
       usernameRef.current?.value || "",
       passwordRef.current?.value || ""
     ).then((x) => {

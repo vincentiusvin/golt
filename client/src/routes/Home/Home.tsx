@@ -26,15 +26,14 @@ const Home = () => {
   const [selectedCode, setSelectedCode] =
     useState<CodeResource | null>(null);
   const addCodeHandler = (display_name: string) => {
-    addCode(user_id, "int main(){\n\n}", display_name).then(
-      (x: ResponseBody<CodeResource>) => {
+    addCode(user_id, "int main(){\n\n}", display_name)
+      .then((x: ResponseBody<CodeResource>) => {
         if (!x.success) {
-          return;
+          throw new Error(x.message);
         }
-        updateCodeList();
         setSelectedCode(x);
-      }
-    );
+      })
+      .then(() => updateCodeList());
   };
 
   return (

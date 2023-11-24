@@ -28,12 +28,10 @@ const CodeList = (props: CodeListProps) => {
           color={i % 2 === 0}
           onClick={() => onItemSelected(x)}
           onRename={(val) => {
-            putCode(user_id, x.id, x.code, val);
-            refresh();
+            putCode(user_id, x.id, x.code, val).then(() => refresh());
           }}
           onDelete={() => {
-            deleteCode(user_id, x.id);
-            refresh();
+            deleteCode(user_id, x.id).then(() => refresh());
           }}
         />
       ))}

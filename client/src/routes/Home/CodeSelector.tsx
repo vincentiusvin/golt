@@ -35,6 +35,7 @@ const CodeSelector = (props: CodeSelectorProps) => {
               onRename &&
               (() => {
                 onRename(renameRef.current!.value);
+                setRenameActive(false);
               })
             }
           >

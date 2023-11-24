@@ -97,8 +97,13 @@ export const CodeResourcePut = (
   res: CodeResponse<CodeResource>
 ) => {
   const code_handler = res.locals.code;
-  const { code } = req.body;
-  code_handler.post_code(code);
+  const { code, display_name } = req.body;
+  if (code !== code_handler.get_code()) {
+    code_handler.post_code(code);
+  }
+  if (display_name !== code_handler.name) {
+    code_handler.update(display_name);
+  }
 
   res.status(200).json({ success: true, ...code_handler.to_json() });
 };
