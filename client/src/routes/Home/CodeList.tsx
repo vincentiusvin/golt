@@ -1,6 +1,9 @@
 import { useRef, useState } from "react";
 import "./Home.css";
-import { CodeResource } from "../../shared_interfaces";
+import {
+  CodeResource,
+  SessionResource,
+} from "../../shared_interfaces";
 import CodeSelector from "./CodeSelector";
 import { deleteCode, putCode } from "../../model";
 import { useCookies } from "react-cookie";
@@ -17,7 +20,7 @@ const CodeList = (props: CodeListProps) => {
   const [addCodeBox, setAddCodeBox] = useState(false);
   const codeNameRef = useRef<HTMLInputElement>(null);
   const [cookies] = useCookies();
-  const user_id = cookies["user_id"];
+  const session: SessionResource | null = cookies["session"];
 
   return (
     <div className="flex gap-2">
@@ -28,10 +31,18 @@ const CodeList = (props: CodeListProps) => {
           color={i % 2 === 0}
           onClick={() => onItemSelected(x)}
           onRename={(val) => {
-            putCode(user_id, x.id, x.code, val).then(() => refresh());
+            if (!session) {
+              return;
+            }
+            putCode(session.user_id, x.id, x.code, val).then(() =>
+              refresh()
+            );
           }}
           onDelete={() => {
-            deleteCode(user_id, x.id).then(() => refresh());
+            if (!session) {
+              return;
+            }
+            deleteCode(session.user_id, x.id).then(() => refresh());
           }}
         />
       ))}

@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { deleteSession, getUser } from "./model";
+import { SessionResource } from "./shared_interfaces";
 
 const Navbar = () => {
   const [name, setName] = useState<string>("Guest");
-  const [cookie, , removeCookie] = useCookies();
+  const [cookies, , removeCookie] = useCookies();
+  const session: SessionResource | null = cookies["session"];
 
   useEffect(() => {
-    cookie["user_id"] &&
-      getUser(cookie["user_id"]).then((x) => {
+    session &&
+      getUser(session.user_id).then((x) => {
         if (x.success) {
           setName(x.display_name);
         } else {
-          removeCookie("session_token");
-          removeCookie("user_id");
+          removeCookie("session");
         }
       });
-  }, [cookie, removeCookie]);
+  }, [removeCookie, session]);
 
   return (
     <div className="grid grid-flow-col gap-10 items-center mx-5 my-2">
@@ -25,7 +26,7 @@ const Navbar = () => {
         <a className="text-white" href="/">
           Home
         </a>
-        {!cookie["user_id"] && (
+        {!session && (
           <>
             <a className="text-white" href="/login">
               Login
@@ -40,13 +41,12 @@ const Navbar = () => {
         <div className="col-span-3 text-end">
           {name && "Hello, " + name}
         </div>
-        {cookie["user_id"] && (
+        {session && (
           <button
             onClick={() => {
               deleteSession().then((x) => {
                 if (x.success === true) {
-                  removeCookie("session_token");
-                  removeCookie("user_id");
+                  removeCookie("session");
                 }
               });
             }}

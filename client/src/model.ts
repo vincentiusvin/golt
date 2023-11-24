@@ -78,7 +78,7 @@ export const putCode = (
 };
 
 export const addCode = (
-  user_id: string,
+  user_id: number,
   code: string,
   display_name: string
 ): Promise<ResponseBody<CodeResource>> => {
@@ -94,7 +94,7 @@ export const addCode = (
 };
 
 export const deleteCode = (
-  user_id: string,
+  user_id: number,
   code_id: number
 ): Promise<ResponseBody> => {
   return fetch(`/api/users/${user_id}/codes/${code_id}`, {

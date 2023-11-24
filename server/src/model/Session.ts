@@ -72,6 +72,11 @@ export class Session {
   }
 
   static get_session_token(req: Request): string | null {
-    return req.cookies && req.cookies["session_token"];
+    const cookie_str: string | null = req.cookies && req.cookies["session"];
+    if (!cookie_str) {
+      return null;
+    }
+    const cookie_obj: SessionResource = JSON.parse(cookie_str);
+    return cookie_obj.token;
   }
 }

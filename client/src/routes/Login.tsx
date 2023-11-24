@@ -19,11 +19,9 @@ const Login = () => {
       passwordRef.current?.value || ""
     ).then((x) => {
       if (x.success) {
-        setCookies("session_token", x.token, {
+        setCookies("session", JSON.stringify(x), {
           expires: new Date(x.expires),
-        });
-        setCookies("user_id", x.user_id, {
-          expires: new Date(x.expires),
+          sameSite: "lax",
         });
         setMsg([
           "good",
