@@ -15,6 +15,7 @@ export type SessionResource = {
   expires: Date;
   token: string;
   user_id: number;
+  session_id: number;
 };
 
 export type SessionResourceInput = {
@@ -34,11 +35,9 @@ export type UserResourceInput = {
 
 export type Collection<T> = { resources: T[] };
 
-export type ResponseBody<T> =
+export type ResponseBody<T = void> =
   | {
       success: false;
       message: string;
     }
-  | ({
-      success: true;
-    } & T);
+  | (T extends void ? { success: true } : { success: true } & T);

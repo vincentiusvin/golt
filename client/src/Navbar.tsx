@@ -38,7 +38,13 @@ const Navbar = () => {
         <div className="col-span-3 text-end">
           {name && "Hello, " + name}
         </div>
-        <button>Log Out</button>
+        <button
+          onClick={() => {
+            fetch("/api/session").then();
+          }}
+        >
+          Log Out
+        </button>
       </div>
     </div>
   );

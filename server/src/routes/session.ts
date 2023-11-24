@@ -29,6 +29,22 @@ export const SessionCollectionPost = async (
   res.status(200).send({ success: true, ...session.to_json() });
 };
 
+export const SessionCollectionDelete = async (
+  sessionManager: SessionManager,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction
+) => {
+  const current_token = SessionManager.get_session_token(req);
+  if (current_token) {
+    sessionManager.delete_session(current_token);
+    res.status(200).send({ success: true });
+  } else {
+    res.status(404).send({ success: false, message: "Session not found!" });
+  }
+};
+
 export const SessionMiddleware = async (
   sessionManager: SessionManager,
   req: Request,

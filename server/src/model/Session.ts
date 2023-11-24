@@ -44,6 +44,7 @@ export class Session {
   user_id: number;
   expires: Date;
   token: string;
+  id: number;
 
   constructor(user_id: number) {
     const SECONDS = 3600;
@@ -60,6 +61,7 @@ export class Session {
       token: this.token,
       expires: this.expires,
       user_id: this.user_id,
+      session_id: this.id,
     };
   }
 }

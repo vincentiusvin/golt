@@ -10,7 +10,11 @@ import {
   CodeResourcePut,
 } from "./routes/code";
 import { LoggerMiddleware } from "./routes/logger";
-import { SessionCollectionPost, SessionMiddleware } from "./routes/session";
+import {
+  SessionCollectionDelete,
+  SessionCollectionPost,
+  SessionMiddleware,
+} from "./routes/session";
 import {
   UserAuthMiddleware,
   UserCollectionsPost,
@@ -41,6 +45,9 @@ app.get("/api/users/:userID/codes/:codeID", CodeResourceGet);
 app.put("/api/users/:userID/codes/:codeID", CodeResourcePut);
 app.post("/api/sessions", (...args) =>
   SessionCollectionPost(sessionManager, ...args)
+);
+app.delete("/api/sessions/:sessionID", (...args) =>
+  SessionCollectionDelete(sessionManager, ...args)
 );
 
 app.listen(port, () => {
