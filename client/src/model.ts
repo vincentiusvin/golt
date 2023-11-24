@@ -1,4 +1,7 @@
 import {
+  CodeResource,
+  CodeResourceInput,
+  Collection,
   ResponseBody,
   SessionResource,
   SessionResourceInput,
@@ -41,6 +44,49 @@ export const addUser = (
     password: password,
   };
   return fetch("/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then((x) => x.json());
+};
+
+export const getCodes = (
+  user_id: number
+): Promise<ResponseBody<Collection<CodeResource>>> =>
+  fetch(`/api/users/${user_id}/codes`).then((x) => x.json());
+
+export const getCode = (user_id: number, code_id: number) =>
+  fetch(`/api/users/${user_id}/codes/${code_id}`).then((x) =>
+    x.json()
+  );
+
+export const putCode = (
+  user_id: number,
+  code_id: number,
+  code: string,
+  display_name: string
+): Promise<ResponseBody<CodeResource>> => {
+  const body: CodeResourceInput = {
+    code: code,
+    display_name: display_name,
+  };
+  return fetch(`/api/users/${user_id}/codes/${code_id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then((x) => x.json());
+};
+
+export const addCode = (
+  user_id: string,
+  code: string,
+  display_name: string
+): Promise<ResponseBody<CodeResource>> => {
+  const body: CodeResourceInput = {
+    code: code,
+    display_name: display_name,
+  };
+  return fetch(`/api/users/${user_id}/codes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

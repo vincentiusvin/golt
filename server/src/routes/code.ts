@@ -44,6 +44,13 @@ export const CodeCollectionPost = async (
 ) => {
   const { code, display_name } = req.body;
   const user_id = res.locals.user.id;
+  if (display_name.length === 0) {
+    res.status(401).json({
+      success: false,
+      message: "Name cannot be empty!",
+    });
+    return;
+  }
 
   if (
     (await res.locals.user.get_codes()).find((x) => x.name === display_name)

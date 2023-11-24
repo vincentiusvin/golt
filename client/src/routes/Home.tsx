@@ -1,14 +1,9 @@
-import { Editor } from "@monaco-editor/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
-import "./Home.css";
-import {
-  CodeResource,
-  CodeResourceInput,
-  Collection,
-  ResponseBody,
-} from "../shared_interfaces";
 import CodeEditor from "../components/Editor";
+import { addCode, getCode, getCodes, putCode } from "../model";
+import { CodeResource, ResponseBody } from "../shared_interfaces";
+import "./Home.css";
 
 function Home() {
   const [codeList, setCodeList] = useState<
@@ -23,43 +18,29 @@ function Home() {
     if (!cookies["user_id"]) {
       return;
     }
-    fetch(`/api/users/${cookies["user_id"]}/codes`)
-      .then((x) => x.json())
-      .then((x: ResponseBody<Collection<CodeResource>>) => {
-        if (x.success) {
-          setCodeList(x.resources);
-        }
-      });
+    getCodes(cookies["user_id"]).then((x) => {
+      if (x.success) {
+        setCodeList(x.resources);
+      }
+    });
   };
 
   useEffect(fetchCodeList, [cookies]);
+  const codeNameRef = useRef<HTMLInputElement>(null);
 
-  const codeAddRequest = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form || !(form instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const data = {
-      code: "int main(){\n\n}",
-      ...Object.fromEntries(new FormData(form)),
-    } as CodeResourceInput;
-
-    fetch(`/api/users/${cookies["user_id"]}/codes`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then((x) => x.json())
-      .then((x: ResponseBody<CodeResource>) => {
-        if (!x.success) {
-          return;
-        }
-        fetchCodeList();
-        setSelectedCode(x);
-        setAddCodeBox(false);
-      });
+  const addCodeHandler = () => {
+    addCode(
+      cookies["user_id"],
+      "int main(){\n\n}",
+      codeNameRef.current?.value || ""
+    ).then((x: ResponseBody<CodeResource>) => {
+      if (!x.success) {
+        return;
+      }
+      fetchCodeList();
+      setSelectedCode(x);
+      setAddCodeBox(false);
+    });
   };
 
   return (
@@ -72,12 +53,10 @@ function Home() {
               "p-2 rounded" + (i % 2 === 0 ? " bg-bg" : " bg-gray")
             }
             onClick={() => {
-              fetch(`/api/users/${cookies["user_id"]}/codes/${id}`)
-                .then((x) => x.json())
-                .then(
-                  (x: ResponseBody<CodeResource>) =>
-                    x.success && setSelectedCode(x)
-                );
+              getCode(cookies["user_id"], id).then(
+                (x: ResponseBody<CodeResource>) =>
+                  x.success && setSelectedCode(x)
+              );
             }}
           >
             {display_name}
@@ -88,14 +67,17 @@ function Home() {
           <div className="bg-gray">
             {addCodeBox ? (
               <>
-                <form className="inline" onSubmit={codeAddRequest}>
-                  <span className="mr-5">Name:</span>
-                  <input
-                    className="rounded mr-5"
-                    name="display_name"
-                  ></input>
-                  <button className="mr-5 bg-green">✓</button>
-                </form>
+                <span className="mr-5">Name:</span>
+                <input
+                  ref={codeNameRef}
+                  className="rounded mr-5"
+                ></input>
+                <button
+                  onClick={addCodeHandler}
+                  className="mr-5 bg-green"
+                >
+                  ✓
+                </button>
                 <button
                   className="bg-red"
                   onClick={() => setAddCodeBox(false)}
@@ -121,24 +103,15 @@ function Home() {
             if (!selectedCode) {
               return;
             }
-
-            const body: CodeResourceInput = {
-              code: val,
-              display_name: selectedCode.display_name,
-            };
-            fetch(
-              `/api/users/${cookies["user_id"]}/codes/${selectedCode?.id}`,
-              {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-              }
-            )
-              .then((x) => x.json())
-              .then(
-                (x: ResponseBody<CodeResource>) =>
-                  x.success && setSelectedCode(x)
-              );
+            putCode(
+              cookies["user_id"],
+              selectedCode.id,
+              val,
+              selectedCode.display_name
+            ).then(
+              (x: ResponseBody<CodeResource>) =>
+                x.success && setSelectedCode(x)
+            );
           }}
         />
         <div className="overflow-scroll bg-bg">
