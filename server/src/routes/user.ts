@@ -46,7 +46,7 @@ export const UserCollectionsPost = async (
   if (user) {
     res.status(200).send({ success: true, ...user.to_json() });
   } else {
-    res.sendStatus(500);
+    res.status(500).send({ success: false, message: "Unknown server error!" });
   }
 };
 

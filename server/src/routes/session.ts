@@ -20,7 +20,7 @@ export const SessionCollectionPost = async (
 
   const user = await User.login(display_name, password);
   if (!user) {
-    res.sendStatus(401);
+    res.status(401).send({ success: false, message: "Unathorized!" });
     return;
   }
 

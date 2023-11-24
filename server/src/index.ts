@@ -16,6 +16,7 @@ import {
   UserCollectionsPost,
   UserResourceGet,
 } from "./routes/user";
+import { Response } from "./types";
 
 const app = express();
 const port = 3000;
@@ -26,8 +27,8 @@ app.use((...args) => SessionMiddleware(sessionManager, ...args));
 app.use(LoggerMiddleware);
 app.use(json());
 
-app.get("/api", (req, res) => {
-  res.status(200).send("API Endpoint :)");
+app.get("/api", (req, res: Response) => {
+  res.status(200).send({ success: false, message: "Hello world!" });
 });
 
 app.post("/api/users", UserCollectionsPost);
