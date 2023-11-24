@@ -92,3 +92,13 @@ export const addCode = (
     body: JSON.stringify(body),
   }).then((x) => x.json());
 };
+
+export const deleteCode = (
+  user_id: string,
+  code_id: number
+): Promise<ResponseBody> => {
+  return fetch(`/api/users/${user_id}/codes/${code_id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  }).then((x) => x.json());
+};

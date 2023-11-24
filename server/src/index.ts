@@ -5,6 +5,7 @@ import {
   CodeAuthMiddleware,
   CodeCollectionGet,
   CodeCollectionPost,
+  CodeResourceDelete,
   CodeResourceGet,
   CodeResourcePut,
 } from "./routes/code";
@@ -41,6 +42,7 @@ app.post("/api/users/:userID/codes", CodeCollectionPost);
 app.all("/api/users/:userID/codes/:codeID*", CodeAuthMiddleware);
 app.get("/api/users/:userID/codes/:codeID", CodeResourceGet);
 app.put("/api/users/:userID/codes/:codeID", CodeResourcePut);
+app.delete("/api/users/:userID/codes/:codeID", CodeResourceDelete);
 app.post("/api/sessions", SessionCollectionPost);
 app.delete("/api/sessions", SessionCollectionDelete);
 

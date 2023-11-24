@@ -1,4 +1,4 @@
-import CodeSelector from "../components/CodeSelector";
+import CodeSelector from "./Home/CodeSelector";
 
 const Sink = () => {
   return <CodeSelector text="test" />;

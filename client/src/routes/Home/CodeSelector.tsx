@@ -5,7 +5,7 @@ type CodeSelectorProps = {
   onRename?: (newName: string) => void;
   onDelete?: () => void;
   onClick?: () => void;
-  color?: string;
+  color?: boolean;
 };
 
 const CodeSelector = (props: CodeSelectorProps) => {
@@ -15,9 +15,8 @@ const CodeSelector = (props: CodeSelectorProps) => {
   return (
     <div
       className={
-        "flex gap-1 items-center p-2 rounded" + color
-          ? "bg-bg"
-          : "bg-gray"
+        "flex gap-2 items-center p-2 rounded cursor-pointer" +
+        (color ? " bg-bg" : " bg-gray")
       }
       onClick={onClick}
     >
@@ -50,7 +49,7 @@ const CodeSelector = (props: CodeSelectorProps) => {
               setRenameActive(true);
               renameRef.current?.focus();
             }}
-            className="bg-bg px-2 py-1"
+            className="bg-blue px-2 py-1"
           >
             ✎
           </button>
