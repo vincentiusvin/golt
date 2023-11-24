@@ -97,14 +97,14 @@ export class Code {
   }
 
   static async get_by_id(id: number): Promise<Code | null> {
-    const res: CodeFields[] = await db.query(
+    const res = await db.query<CodeFields[]>(
       `SELECT id, name, user_id FROM codes WHERE id = ${id};`
     );
     return res.length ? new Code(res[0].id, res[0].name, res[0].user_id) : null;
   }
 
   static async get_by_user_id(user_id: number): Promise<Code[]> {
-    const res: CodeFields[] = await db.query(
+    const res = await db.query<CodeFields[]>(
       `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id};`
     );
     return res.map((x) => new Code(x.id, x.name, x.user_id));
@@ -114,7 +114,7 @@ export class Code {
     user_id: number,
     code_id: number
   ): Promise<Code | null> {
-    const res: CodeFields[] = await db.query(
+    const res = await db.query<CodeFields[]>(
       `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id} AND id = ${code_id};`
     );
     return res.length ? new Code(res[0].id, res[0].name, res[0].user_id) : null;
@@ -124,7 +124,7 @@ export class Code {
     user_id: number,
     name: string
   ): Promise<Code | null> {
-    const res: CodeFields[] = await db.query(
+    const res = await db.query<CodeFields[]>(
       `SELECT id, name, user_id FROM codes WHERE user_id = ${user_id} AND name = '${name}';`
     );
     return res.length ? new Code(res[0].id, res[0].name, res[0].user_id) : null;

@@ -15,7 +15,6 @@ export type SessionResource = {
   expires: Date;
   token: string;
   user_id: number;
-  session_id: number;
 };
 
 export type SessionResourceInput = {

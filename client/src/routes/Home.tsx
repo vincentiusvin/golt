@@ -87,33 +87,35 @@ function Home() {
             {display_name}
           </button>
         ))}
-        <div className="bg-gray">
-          {addCodeBox ? (
-            <>
-              <form className="inline" onSubmit={codeAddRequest}>
-                <span className="mr-5">Name:</span>
-                <input
-                  className="rounded mr-5"
-                  name="display_name"
-                ></input>
-                <button className="mr-5 bg-green">✓</button>
-              </form>
+        {cookies["session_token"] && (
+          <div className="bg-gray">
+            {addCodeBox ? (
+              <>
+                <form className="inline" onSubmit={codeAddRequest}>
+                  <span className="mr-5">Name:</span>
+                  <input
+                    className="rounded mr-5"
+                    name="display_name"
+                  ></input>
+                  <button className="mr-5 bg-green">✓</button>
+                </form>
+                <button
+                  className="bg-red"
+                  onClick={() => setAddCodeBox(false)}
+                >
+                  ✕
+                </button>
+              </>
+            ) : (
               <button
-                className="bg-red"
-                onClick={() => setAddCodeBox(false)}
+                className="font-bold"
+                onClick={() => setAddCodeBox(true)}
               >
-                ✕
+                +
               </button>
-            </>
-          ) : (
-            <button
-              className="font-bold"
-              onClick={() => setAddCodeBox(true)}
-            >
-              +
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-2 h-screen p-5 gap-2">
         <Editor

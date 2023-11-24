@@ -34,8 +34,12 @@ const Login = () => {
       .then((x) => x.json())
       .then((x: ResponseBody<SessionResource>) => {
         if (x.success) {
-          setCookies("session_token", x.token);
-          setCookies("user_id", x.user_id);
+          setCookies("session_token", x.token, {
+            expires: new Date(x.expires),
+          });
+          setCookies("user_id", x.user_id, {
+            expires: new Date(x.expires),
+          });
           setMsg([
             "good",
             "Login sucessfull! Redirecting to home in 3 seconds...",

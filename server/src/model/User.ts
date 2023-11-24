@@ -35,7 +35,7 @@ export class User {
   }
 
   static async get_by_id(id: number): Promise<User | null> {
-    const res: UserFields[] = await db.query(
+    const res = await db.query<UserFields[]>(
       `SELECT id, name, password FROM users WHERE id = ${id};`
     );
     return res.length
@@ -51,7 +51,7 @@ export class User {
   }
 
   static async get_by_name(name: string): Promise<User | null> {
-    const res: UserFields[] = await db.query(
+    const res = await db.query<UserFields[]>(
       `SELECT id, name, password FROM users WHERE name = '${name}';`
     );
     return res.length
@@ -60,7 +60,7 @@ export class User {
   }
 
   static async login(name: string, password: string): Promise<User | null> {
-    const res: UserFields[] = await db.query(
+    const res = await db.query<UserFields[]>(
       `SELECT id, name, password FROM users WHERE name = '${name}' AND password = '${password}';`
     );
     return res.length
