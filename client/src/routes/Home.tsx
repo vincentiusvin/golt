@@ -16,9 +16,6 @@ function Home() {
   >([]);
   const [selectedCode, setSelectedCode] =
     useState<CodeResource | null>(null);
-  const [lastTimeout, setLastTimeout] = useState<
-    number | undefined
-  >();
   const [addCodeBox, setAddCodeBox] = useState(false);
 
   const [cookies] = useCookies();
