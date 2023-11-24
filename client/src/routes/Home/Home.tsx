@@ -27,8 +27,10 @@ const Home = () => {
   };
   useEffect(updateCodeList, [session]);
 
-  const [selectedCode, setSelectedCode] =
-    useState<CodeResource | null>(null);
+  const [selectedCode, setSelectedCode] = useState<number | null>(
+    null
+  );
+  const selectedCodeObj = codeList.find((x) => x.id === selectedCode);
   const addCodeHandler = (display_name: string) => {
     if (!session) {
       return;
@@ -38,7 +40,7 @@ const Home = () => {
         if (!x.success) {
           throw new Error(x.message);
         }
-        setSelectedCode(x);
+        setSelectedCode(x.id);
       })
       .then(() => updateCodeList());
   };
@@ -53,29 +55,29 @@ const Home = () => {
       <CodeList
         list={codeList}
         onAddItem={addCodeHandler}
-        onItemSelected={(x) => setSelectedCode(x)}
+        onItemSelected={(x) => setSelectedCode(x.id)}
         refresh={updateCodeList}
       />
       <div className="grid grid-cols-2 h-screen p-5 gap-2">
         <CodeEditor
-          code={selectedCode?.code || ""}
+          code={selectedCodeObj?.code || ""}
           onSubmit={(val) => {
-            if (!selectedCode || !session) {
+            if (!selectedCodeObj || !session) {
               return;
             }
             putCode(
               session.user_id,
-              selectedCode.id,
+              selectedCodeObj.id,
               val,
-              selectedCode.display_name
+              selectedCodeObj.display_name
             ).then(
               (x: ResponseBody<CodeResource>) =>
-                x.success && setSelectedCode(x)
+                x.success && updateCodeList()
             );
           }}
         />
         <div className="overflow-scroll bg-bg">
-          <pre>{selectedCode?.result}</pre>
+          <pre>{selectedCodeObj?.result}</pre>
         </div>
       </div>
     </div>
