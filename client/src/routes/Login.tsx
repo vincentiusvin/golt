@@ -1,10 +1,11 @@
 import { useCookies } from "react-cookie";
-import {
-  ISessionCollectionPostRequest,
-  ISessionCollectionPostResponse,
-} from "../shared_interfaces";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ResponseBody,
+  SessionResource,
+  SessionResourceInput,
+} from "../shared_interfaces";
 
 const Login = () => {
   const [, setCookies] = useCookies();
@@ -23,25 +24,27 @@ const Login = () => {
 
     const data = Object.fromEntries(
       new FormData(form)
-    ) as ISessionCollectionPostRequest;
+    ) as SessionResourceInput;
 
     fetch("/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).then((x) =>
-      x.status == 200
-        ? x.json().then((x: ISessionCollectionPostResponse) => {
-            setCookies("session_token", x.token);
-            setCookies("user_id", x.user_id);
-            setMsg([
-              "good",
-              "Login sucessfull! Redirecting to home in 3 seconds...",
-            ]);
-            setTimeout(() => navigate("/"), 3 * 1000);
-          })
-        : x.text().then((x) => setMsg(["bad", x]))
-    );
+    })
+      .then((x) => x.json())
+      .then((x: ResponseBody<SessionResource>) => {
+        if (x.success) {
+          setCookies("session_token", x.token);
+          setCookies("user_id", x.user_id);
+          setMsg([
+            "good",
+            "Login sucessfull! Redirecting to home in 3 seconds...",
+          ]);
+          setTimeout(() => navigate("/"), 3 * 1000);
+        } else {
+          setMsg(["bad", x.message]);
+        }
+      });
   };
 
   return (

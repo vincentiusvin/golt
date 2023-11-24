@@ -1,20 +1,20 @@
 import { Editor } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import {
-  ICodeCollectionGetResponse,
-  ICodeCollectionPostRequest,
-  ICodeResourceGetResponse,
-  ICodeResourcePutRequest,
-} from "../shared_interfaces";
 import "./Home.css";
+import {
+  CodeResource,
+  CodeResourceInput,
+  Collection,
+  ResponseBody,
+} from "../shared_interfaces";
 
 function Home() {
   const [codeList, setCodeList] = useState<
     { display_name: string; id: number }[]
   >([]);
   const [selectedCode, setSelectedCode] =
-    useState<ICodeResourceGetResponse | null>(null);
+    useState<CodeResource | null>(null);
   const [cookies] = useCookies();
 
   const [lastTimeout, setLastTimeout] = useState<
@@ -24,9 +24,16 @@ function Home() {
   const [addCodeBox, setAddCodeBox] = useState(false);
 
   const fetchCodeList = () => {
+    if (!cookies["user_id"]) {
+      return;
+    }
     fetch(`/api/users/${cookies["user_id"]}/codes`)
       .then((x) => x.json())
-      .then((x: ICodeCollectionGetResponse) => setCodeList(x));
+      .then((x: ResponseBody<Collection<CodeResource>>) => {
+        if (x.success) {
+          setCodeList(x.resources);
+        }
+      });
   };
 
   useEffect(fetchCodeList, [cookies]);
@@ -41,7 +48,7 @@ function Home() {
     const data = {
       code: "int main(){\n\n}",
       ...Object.fromEntries(new FormData(form)),
-    } as ICodeCollectionPostRequest;
+    } as CodeResourceInput;
 
     fetch(`/api/users/${cookies["user_id"]}/codes`, {
       method: "POST",
@@ -49,7 +56,10 @@ function Home() {
       body: JSON.stringify(data),
     })
       .then((x) => x.json())
-      .then((x: ICodeResourceGetResponse) => {
+      .then((x: ResponseBody<CodeResource>) => {
+        if (!x.success) {
+          return;
+        }
         fetchCodeList();
         setSelectedCode(x);
         setAddCodeBox(false);
@@ -68,8 +78,9 @@ function Home() {
             onClick={() => {
               fetch(`/api/users/${cookies["user_id"]}/codes/${id}`)
                 .then((x) => x.json())
-                .then((x: ICodeResourceGetResponse) =>
-                  setSelectedCode(x)
+                .then(
+                  (x: ResponseBody<CodeResource>) =>
+                    x.success && setSelectedCode(x)
                 );
             }}
           >
@@ -110,9 +121,14 @@ function Home() {
           defaultLanguage="c"
           value={selectedCode?.code}
           onChange={(val) => {
+            if (!selectedCode) {
+              return;
+            }
+
             clearTimeout(lastTimeout);
-            const body: ICodeResourcePutRequest = {
+            const body: CodeResourceInput = {
               code: val || "",
+              display_name: selectedCode.display_name,
             };
             const newTimeout = setTimeout(() => {
               fetch(
@@ -124,8 +140,9 @@ function Home() {
                 }
               )
                 .then((x) => x.json())
-                .then((x: ICodeResourceGetResponse) =>
-                  setSelectedCode(x)
+                .then(
+                  (x: ResponseBody<CodeResource>) =>
+                    x.success && setSelectedCode(x)
                 );
             }, 500);
             setLastTimeout(Number(newTimeout));

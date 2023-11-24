@@ -1,6 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { IUserCollectionPostRequest } from "../shared_interfaces";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ResponseBody,
+  SessionResource,
+  UserResourceInput,
+} from "../shared_interfaces";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -14,23 +18,25 @@ const Register = () => {
 
     const data = Object.fromEntries(
       new FormData(form)
-    ) as IUserCollectionPostRequest;
+    ) as UserResourceInput;
 
     fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).then((x) => {
-      if (x.status === 200) {
-        setMsg([
-          "good",
-          "Registration sucessful! Redirecting to Login in 3 seconds...",
-        ]);
-        setTimeout(() => navigate("/login"), 3 * 1000);
-      } else {
-        x.text().then((x) => setMsg(["bad", x]));
-      }
-    });
+    })
+      .then((x) => x.json())
+      .then((x: ResponseBody<SessionResource>) => {
+        if (x.success) {
+          setMsg([
+            "good",
+            "Registration sucessful! Redirecting to Login in 3 seconds...",
+          ]);
+          setTimeout(() => navigate("/login"), 3 * 1000);
+        } else {
+          setMsg(["bad", x.message]);
+        }
+      });
   };
   const [msg, setMsg] = useState<["good" | "bad", string]>([
     "good",

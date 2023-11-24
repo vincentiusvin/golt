@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { IUserResourceGetResponse } from "./shared_interfaces";
+import { ResponseBody, UserResource } from "./shared_interfaces";
 
 const Navbar = () => {
   const [name, setName] = useState<string>("Guest");
@@ -11,25 +11,35 @@ const Navbar = () => {
         method: "GET",
       })
         .then((x) => x.json())
-        .then((x: IUserResourceGetResponse) =>
-          setName(x.display_name)
+        .then(
+          (x: ResponseBody<UserResource>) =>
+            x.success && setName(x.display_name)
         );
   }, [cookie]);
   return (
     <div className="grid grid-flow-col gap-10 items-center mx-5 my-2">
-      <span className="font-bold text-2xl">Golt</span>
-      <a className="text-white" href="/">
-        Home
-      </a>
-      <a className="text-white" href="/login">
-        Login
-      </a>
-      <a className="text-white" href="/register">
-        Register
-      </a>
-      <span className="col-span-3 text-end">
-        {name && "Hello, " + name}
-      </span>
+      <div className="grid grid-flow-col gap-10 items-start">
+        <div className="font-bold text-2xl">Golt</div>
+        <a className="text-white" href="/">
+          Home
+        </a>
+        {!cookie["user_id"] && (
+          <>
+            <a className="text-white" href="/login">
+              Login
+            </a>
+            <a className="text-white" href="/register">
+              Register
+            </a>
+          </>
+        )}
+      </div>
+      <div className="grid grid-flow-col gap-10 items-center">
+        <div className="col-span-3 text-end">
+          {name && "Hello, " + name}
+        </div>
+        <button>Log Out</button>
+      </div>
     </div>
   );
 };
