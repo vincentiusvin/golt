@@ -45,13 +45,24 @@ export const CodeCollectionPost = async (
   const { code, display_name } = req.body;
   const user_id = res.locals.user.id;
 
-  await Code.add_to_db(code, user_id);
+  if (
+    (await res.locals.user.get_codes()).find((x) => x.name === display_name)
+  ) {
+    res.status(401).json({
+      success: false,
+      message: "You already have another code with this name!",
+    });
+    return;
+  }
+
+  await Code.add_to_db(display_name, user_id);
   const code_handler = await Code.get_by_user_id_and_name(
     user_id,
     display_name
   );
   if (!code_handler) {
-    throw new Error("Code handler not found after being added to the DB!");
+    res.status(500).json({ success: false, message: "Internal server error!" });
+    return;
   }
 
   code_handler.post_code(code);

@@ -1,6 +1,6 @@
 import { json } from "body-parser";
 import cookieParser from "cookie-parser";
-import express, { NextFunction, Request } from "express";
+import express from "express";
 import { SessionManager } from "./model/Session";
 import {
   CodeAuthMiddleware,
@@ -9,13 +9,13 @@ import {
   CodeResourceGet,
   CodeResourcePut,
 } from "./routes/code";
+import { LoggerMiddleware } from "./routes/logger";
 import { SessionCollectionPost, SessionMiddleware } from "./routes/session";
 import {
   UserAuthMiddleware,
   UserCollectionsPost,
   UserResourceGet,
 } from "./routes/user";
-import { LoggerMiddleware } from "./routes/logger";
 
 const app = express();
 const port = 3000;
