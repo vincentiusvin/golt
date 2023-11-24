@@ -10,6 +10,7 @@ import Home from "./routes/Home.tsx";
 import Login from "./routes/Login.tsx";
 import Navbar from "./Navbar.tsx";
 import Register from "./routes/Register.tsx";
+import Sink from "./routes/Sink.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/sink",
+    element: <Sink />,
   },
 ]);
 

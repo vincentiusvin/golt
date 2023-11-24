@@ -1,5 +1,11 @@
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { db } from "../db";
 import { CodeResource } from "../shared_interfaces";
 
@@ -87,6 +93,12 @@ export class Code {
       id: this.id,
       ...this.get_output(),
     };
+  }
+
+  async delete_code() {
+    const res = await db.query(`DELETE FROM codes WHERE id=${this.id}`);
+    rmSync(this.get_base_path(), { recursive: true });
+    return res;
   }
 
   static async add_to_db(name: string, user_id: number) {

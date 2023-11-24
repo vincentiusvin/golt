@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { ResponseBody, UserResource } from "./shared_interfaces";
+import { deleteSession, getUser } from "./model";
 
 const Navbar = () => {
   const [name, setName] = useState<string>("Guest");
@@ -8,18 +8,14 @@ const Navbar = () => {
 
   useEffect(() => {
     cookie["user_id"] &&
-      fetch(`/api/users/${cookie["user_id"]}`, {
-        method: "GET",
-      })
-        .then((x) => x.json())
-        .then((x: ResponseBody<UserResource>) => {
-          if (x.success) {
-            setName(x.display_name);
-          } else {
-            removeCookie("session_token");
-            removeCookie("user_id");
-          }
-        });
+      getUser(cookie["user_id"]).then((x) => {
+        if (x.success) {
+          setName(x.display_name);
+        } else {
+          removeCookie("session_token");
+          removeCookie("user_id");
+        }
+      });
   }, [cookie, removeCookie]);
 
   return (
@@ -47,14 +43,12 @@ const Navbar = () => {
         {cookie["user_id"] && (
           <button
             onClick={() => {
-              fetch("/api/sessions", { method: "DELETE" })
-                .then((x) => x.json())
-                .then((x: ResponseBody) => {
-                  if (x.success === true) {
-                    removeCookie("session_token");
-                    removeCookie("user_id");
-                  }
-                });
+              deleteSession().then((x) => {
+                if (x.success === true) {
+                  removeCookie("session_token");
+                  removeCookie("user_id");
+                }
+              });
             }}
           >
             Log Out

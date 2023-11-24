@@ -8,6 +8,7 @@ import {
   Collection,
   ResponseBody,
 } from "../shared_interfaces";
+import CodeEditor from "../components/Editor";
 
 function Home() {
   const [codeList, setCodeList] = useState<
@@ -15,14 +16,12 @@ function Home() {
   >([]);
   const [selectedCode, setSelectedCode] =
     useState<CodeResource | null>(null);
-  const [cookies] = useCookies();
-
   const [lastTimeout, setLastTimeout] = useState<
     number | undefined
   >();
-
   const [addCodeBox, setAddCodeBox] = useState(false);
 
+  const [cookies] = useCookies();
   const fetchCodeList = () => {
     if (!cookies["user_id"]) {
       return;
@@ -85,6 +84,7 @@ function Home() {
             }}
           >
             {display_name}
+            <button className="bg-red">✕</button>
           </button>
         ))}
         {cookies["session_token"] && (
@@ -118,36 +118,30 @@ function Home() {
         )}
       </div>
       <div className="grid grid-cols-2 h-screen p-5 gap-2">
-        <Editor
-          theme="vs-dark"
-          defaultLanguage="c"
-          value={selectedCode?.code}
-          onChange={(val) => {
+        <CodeEditor
+          code={selectedCode?.code || ""}
+          onSubmit={(val) => {
             if (!selectedCode) {
               return;
             }
 
-            clearTimeout(lastTimeout);
             const body: CodeResourceInput = {
-              code: val || "",
+              code: val,
               display_name: selectedCode.display_name,
             };
-            const newTimeout = setTimeout(() => {
-              fetch(
-                `/api/users/${cookies["user_id"]}/codes/${selectedCode?.id}`,
-                {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(body),
-                }
-              )
-                .then((x) => x.json())
-                .then(
-                  (x: ResponseBody<CodeResource>) =>
-                    x.success && setSelectedCode(x)
-                );
-            }, 500);
-            setLastTimeout(Number(newTimeout));
+            fetch(
+              `/api/users/${cookies["user_id"]}/codes/${selectedCode?.id}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              }
+            )
+              .then((x) => x.json())
+              .then(
+                (x: ResponseBody<CodeResource>) =>
+                  x.success && setSelectedCode(x)
+              );
           }}
         />
         <div className="overflow-scroll bg-bg">

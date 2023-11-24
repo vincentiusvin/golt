@@ -79,6 +79,12 @@ export const CodeResourceGet = (
   res.status(200).json({ success: true, ...code_handler.to_json() });
 };
 
+export const CodeResourceDelete = async (req: Request, res: CodeResponse) => {
+  const code_handler = res.locals.code;
+  await code_handler.delete_code();
+  res.status(200).json({ success: true });
+};
+
 export const CodeResourcePut = (
   req: Request<CodeResourceInput>,
   res: CodeResponse<CodeResource>
