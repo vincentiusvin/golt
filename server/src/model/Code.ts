@@ -3,7 +3,6 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -28,7 +27,7 @@ export class Code {
   }
 
   private get_base_path() {
-    return `compile/${this.user_id}/${this.name}/`;
+    return `compile/${this.user_id}/${this.id}/`;
   }
 
   private get_code_path() {
@@ -55,10 +54,6 @@ export class Code {
     const res = await db.query(
       `UPDATE codes SET name='${new_name}' WHERE id=${this.id}`
     );
-    const old_path = this.get_base_path();
-    this.name = new_name;
-    const new_path = this.get_base_path();
-    renameSync(old_path, new_path);
     return res;
   }
 
