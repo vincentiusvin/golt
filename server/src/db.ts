@@ -1,9 +1,11 @@
 import { createPool } from "mariadb";
 
+const { MARIADB_USER, MARIADB_PASSWORD, MARIADB_DATABASE } = process.env;
+
 export const db = createPool({
   host: "localhost",
-  user: "golt",
-  password: "golt",
+  user: MARIADB_USER,
+  password: MARIADB_PASSWORD,
   connectionLimit: 5,
-  database: "golt",
+  database: MARIADB_DATABASE,
 });

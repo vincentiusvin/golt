@@ -1,10 +1,20 @@
 services:
   backend:
     container_name: golt-backend
+    network_mode: "host"
+    env_file: ".env"
     build: ./server
 
   frontend:
     container_name: golt-frontend
     build: ./client
-    ports:
-      - "80:80"
+    network_mode: "host"
+    depends_on:
+      backend:
+        condition: service_started
+
+  db:
+    image: mariadb:11.7.1-ubi9-rc
+    container_name: golt-db
+    env_file: ".env"
+    network_mode: "host"
